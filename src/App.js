@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import ProductList from './components/ProductList';
 import FilterSidebar from './components/FilterSidebar';
+import Popup from './components/popup';
 import './App.css';
 
-const App = () => {
+function App() {
   const [products, setProducts] = useState([]);
   const [filters, setFilters] = useState({});
   const [searchTerm, setSearchTerm] = useState(''); // Добавили state для поиска
+  const [isPopupOpen, setIsPopupOpen] = useState(false); // State для открытия/закрытия popup
 
   // Имитация API вызова (замените реальным API)
   useEffect(() => {
@@ -41,6 +43,14 @@ const App = () => {
     setSearchTerm(term);
   };
 
+  const handleOpenPopup = () => { // Функция для открытия всплывающего окна
+    setIsPopupOpen(true);
+  };
+
+  const handleClosePopup = () => { // Функция для закрытия всплывающего окна
+    setIsPopupOpen(false);
+  };
+
   const filteredProducts = products.filter(product => {
     //Тут нужно реализовать логику фильтрации
     //Основываясь на filters. Будет работать только если
@@ -53,11 +63,12 @@ const App = () => {
 
   return (
     <div className="app-container">
-      <Header onSearch={handleSearch} /> {/* Передаем функцию в Header */}
+      <Header onOpenPopup={handleOpenPopup} onSearch={handleSearch} /> {/* Передаем функцию в Header */}
       <div className="main-content">
         <FilterSidebar onFilterChange={handleFilterChange} />
         <ProductList products={filteredProducts} />
       </div>
+      <Popup isOpen={isPopupOpen} onClose={handleClosePopup} /> {/* Рендерим Popup */}
     </div>
   );
 };

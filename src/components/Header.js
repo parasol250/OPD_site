@@ -1,25 +1,24 @@
-import React, { useState } from 'react';
+// Header.js
+import React from 'react';
+import './Header.css'; // Импортируем стили
 
-const Header = ({ onSearch }) => {
-  const [searchTerm, setSearchTerm] = useState('');
-
+function Header({ onOpenPopup, onSearch }) { // Принимаем onOpenPopup и onSearch
   const handleInputChange = (event) => {
-    setSearchTerm(event.target.value);
-    onSearch(event.target.value); // Передаем поисковый запрос в App.js
+    onSearch(event.target.value); // Вызываем onSearch при изменении значения
   };
 
   return (
     <header className="header">
-      <div className="search-bar">
+      <div className="header-content">
         <input
           type="text"
-          placeholder="Поиск по названию..."
-          value={searchTerm}
-          onChange={handleInputChange}
+          placeholder="Поиск по названию"
+          onChange={handleInputChange} // Вызываем onSearch при изменении
         />
+        <button className="login-button" onClick={onOpenPopup}>Войти</button>
       </div>
     </header>
   );
-};
+}
 
 export default Header;

@@ -1,0 +1,59 @@
+.header {
+  background-color: #f0f0f0;
+  padding: 20px;
+  align-items: center;
+}
+  
+.header-content {
+    display: flex;
+    align-items: center;            /*  Центрируем элементы по вертикали */
+    justify-content: flex-start; /* Выравниваем элементы в начале */
+}
+.header-content input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 1000px;
+    margin-left: auto;    /*  Прижимаем к правому краю */
+}
+
+.search-bar {
+    flex-grow: 1; /*  Занимает доступное пространство */
+    max-width: 400px;
+ }
+  
+.search-bar input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+}
+  
+.login-button {
+  background-color: #4CAF50; /* Зеленый цвет */
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-left: 180px;
+}
+  
+.login-button:hover {
+  background-color: #3e8e41;
+}
+  
+  /* Дополнительные стили для адаптивности (по желанию) */
+  @media (max-width: 768px) {
+    .header-content {
+      flex-direction: column; /* Перестраиваем в колонку на маленьких экранах */
+      align-items: stretch;
+    }
+  
+    .header-content input[type="text"] {
+      width: 100%; /* Инпут занимает всю ширину */
+      margin-bottom: 10px;
+    }
+  }
+  

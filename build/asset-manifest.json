@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/parasol250/OPD_site.git/static/css/main.ee722b1e.css",
+    "main.js": "/parasol250/OPD_site.git/static/js/main.7443646f.js",
+    "index.html": "/parasol250/OPD_site.git/index.html",
+    "main.ee722b1e.css.map": "/parasol250/OPD_site.git/static/css/main.ee722b1e.css.map",
+    "main.7443646f.js.map": "/parasol250/OPD_site.git/static/js/main.7443646f.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.ee722b1e.css",
+    "static/js/main.7443646f.js"
+  ]
+}
