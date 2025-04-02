@@ -17,6 +17,21 @@
     margin-left: auto;    /*  Прижимаем к правому краю */
 }
 
+.home-button {
+  padding: 8px 16px;
+  background-color: #4CAF50;
+  color: white;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+  margin-right: 10px; /* Spacing between home button and login button */
+}
+.home-button:hover {
+  background-color: #3e8e41;
+}
+
 .search-bar {
     flex-grow: 1; /*  Занимает доступное пространство */
     max-width: 400px;
@@ -56,4 +71,39 @@
       margin-bottom: 10px;
     }
   }
+
+  .filter-sidebar {
+    /* Добавьте стили для FilterSidebar */
+    margin-top: 10px; /* Добавим отступ сверху */
+    /*  Другие стили по необходимости */
+    
+  }
+
+  .furniture-categories {
+    display: flex;
+    justify-content: center; /* Распределяем элементы равномерно */
+    padding: 10px;
+    width: 100%; /* Занимаем всю доступную ширину */
+    box-sizing: border-box; /* Чтобы padding не увеличивал ширину */
+    margin-top: 15px; /* Добавляем отступ сверху */
+  }
+
   
+  .furniture-categories span {
+    background-color: #fff; /* Белый фон */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 8px 0px;
+    margin: 0; /* Убираем margin, чтобы элементы занимали больше места */
+    font-size: 14px;
+    display: flex;         /*Чтобы flex работал корректно */
+    justify-content: center; /* Centering text */
+    width: 100%;         /* Кнопки занимают одинаковое место */
+    text-align: center;    /* Центрируем текст */
+    cursor: pointer;       /* Указываем на возможность нажатия */
+    flex-grow: 1;
+  }
+  
+  .furniture-categories span:hover {
+    background-color: #e0e0e0;
+  }

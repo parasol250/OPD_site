@@ -4,12 +4,15 @@ import ProductList from './components/ProductList';
 import FilterSidebar from './components/FilterSidebar';
 import Popup from './components/popup';
 import './App.css';
+import ReactDOM from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
 
 function App() {
   const [products, setProducts] = useState([]);
   const [filters, setFilters] = useState({});
   const [searchTerm, setSearchTerm] = useState(''); // Добавили state для поиска
   const [isPopupOpen, setIsPopupOpen] = useState(false); // State для открытия/закрытия popup
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Состояние аутентификации (пример)
 
   // Имитация API вызова (замените реальным API)
   useEffect(() => {
@@ -51,6 +54,18 @@ function App() {
     setIsPopupOpen(false);
   };
 
+  // New function to handle login from Popup
+  const handleLogin = () => {
+    setIsLoggedIn(true);
+    setIsPopupOpen(false);  // close the popup after successful login
+  };
+
+    // New function to handle register from Popup (just close popup as example)
+  const handleRegister = () => {
+    setIsLoggedIn(true);
+    setIsPopupOpen(false);  // close the popup after successful register, also login as example
+  };
+
   const filteredProducts = products.filter(product => {
     //Тут нужно реализовать логику фильтрации
     //Основываясь на filters. Будет работать только если
@@ -62,14 +77,23 @@ function App() {
   });
 
   return (
+    <BrowserRouter>
     <div className="app-container">
-      <Header onOpenPopup={handleOpenPopup} onSearch={handleSearch} /> {/* Передаем функцию в Header */}
+      <Header onOpenPopup={handleOpenPopup}
+      onSearch={handleSearch}
+      isLoggedIn={isLoggedIn}
+      /> {/* Передаем функцию в Header */}
       <div className="main-content">
-        <FilterSidebar onFilterChange={handleFilterChange} />
+        
         <ProductList products={filteredProducts} />
       </div>
       <Popup isOpen={isPopupOpen} onClose={handleClosePopup} /> {/* Рендерим Popup */}
+      {/* Conditionally render the Popup, passing login handler */}
+      {isPopupOpen && (
+        <Popup isOpen={isPopupOpen} onClose={handleClosePopup} onLogin={handleLogin} onRegister={handleRegister}/>
+      )}
     </div>
+    </BrowserRouter>
   );
 };
 

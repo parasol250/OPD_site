@@ -9,12 +9,6 @@
   flex-grow: 1;
 }
 
-.filter-sidebar {
-  width: 200px;
-  padding: 20px;
-  background-color: #eee;
-}
-
 .product-list {
   flex-grow: 1;
   padding: 20px;
