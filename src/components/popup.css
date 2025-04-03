@@ -63,8 +63,13 @@
   border: none;
   color: #fff;
   border-radius: 10px;
-  background-color: rgb(60, 0, 255);
+  background-color: #2E8B57;
+  transition: background-color 0.3s ease;
 }
+.popup-body button:hover {
+  background-color: #3CB371;
+}
+
 .popup-close {
   position: absolute;
   top: 5px;
@@ -97,6 +102,7 @@
     color: #007bff;
     text-decoration: underline;
     margin-top: 20px;
+    transition: background-color 0.3s ease;
   }
   
   .toggle-form:hover {

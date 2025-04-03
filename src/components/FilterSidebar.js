@@ -3,6 +3,7 @@ import './FilterSidebar.css';
 
 const FilterSidebar = ({ onFilterChange }) => {
   const [priceRange, setPriceRange] = useState(100000);
+  const maxPrice = 100000; // Maximum price value
   const [material, setMaterial] = useState('');
   const [color, setColor] = useState('');
   const [size, setSize] = useState('');
@@ -62,7 +63,7 @@ const FilterSidebar = ({ onFilterChange }) => {
             type="range"
             id="price"
             min="0"
-            max="100000"
+            max={maxPrice}
             value={priceRange}
             onChange={handlePriceChange}
             className="price-input"

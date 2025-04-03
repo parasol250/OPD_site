@@ -5,8 +5,10 @@
 }
 
 .main-content {
-  display: flex;
-  flex-grow: 1;
+  display: flex;           /* Use flexbox */
+  flex-direction: column;  /* Stack items vertically */
+     /* Stretch items to fill container width */
+  padding: 20px;
 }
 
 .product-list {
