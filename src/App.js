@@ -15,7 +15,7 @@ function App() {
   const [isPopupOpen, setIsPopupOpen] = useState(false); // State для открытия/закрытия popup
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Состояние аутентификации (пример)
   //const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState(null); // State for selected category
+  //const [selectedCategory, setSelectedCategory] = useState(null); // State for selected category
 
   // Имитация API вызова (замените реальным API)
   useEffect(() => {
