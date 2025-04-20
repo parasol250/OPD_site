@@ -84,11 +84,11 @@ function App() {
     const productNameLower = product.name.toLowerCase();
     const searchMatch = productNameLower.includes(searchTermLower); // Фильтруем по названию
     // Category filter
-    if (selectedCategory) {
-      return product.category === selectedCategory && searchMatch; // Search only within selected category
-    } else {
-      return searchMatch; // Search across all products when no category is selected
-    }
+    //if (selectedCategory) {
+      //return product.category === selectedCategory && searchMatch; // Search only within selected category
+    //} else {
+      //return searchMatch; // Search across all products when no category is selected
+    //}
   });
 
   //const handleCategoryClick = (category) => {
