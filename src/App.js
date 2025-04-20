@@ -39,7 +39,7 @@ function App() {
         { id: 10, name: 'Комод', price: 28000, image: 'https://via.placeholder.com/150', store: 'Store 3', link: 'https://example.com/product10', category: 'Тумбы и комоды' },
       ];
       setProducts(data);
-      setLoading(false);
+      //setLoading(false);
     };
 
     fetchData();
