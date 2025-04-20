@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import ProductList from './components/ProductList';
-import FilterSidebar from './components/FilterSidebar';
+//import FilterSidebar from './components/FilterSidebar';
 import Popup from './components/popup';
 import './App.css';
-import ReactDOM from 'react-dom/client';
+//import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Route, Routes, useParams } from 'react-router-dom';
-import CategoryPage from './components/CategoryPage';
+//import CategoryPage from './components/CategoryPage';
 
 function App() {
   const [products, setProducts] = useState([]);
-  const [filters, setFilters] = useState({});
+  //const [filters, setFilters] = useState({});
   const [searchTerm, setSearchTerm] = useState(''); // Добавили state для поиска
   const [isPopupOpen, setIsPopupOpen] = useState(false); // State для открытия/закрытия popup
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Состояние аутентификации (пример)
-  const [loading, setLoading] = useState(true);
+  //const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState(null); // State for selected category
 
   // Имитация API вызова (замените реальным API)
@@ -45,12 +45,12 @@ function App() {
     fetchData();
   }, []);
 
-  const handleFilterChange = (newFilters) => {
-    setFilters(newFilters);
+  //const handleFilterChange = (newFilters) => {
+    //setFilters(newFilters);
     //Здесь нужно реализовать отправку фильтров на API
     //И обновить стейт products на основе результатов
-    console.log('New filters:', newFilters);
-  };
+    //console.log('New filters:', newFilters);
+  //};
 
   const handleSearch = (term) => { // Добавили обработчик поиска
     setSearchTerm(term);
@@ -91,9 +91,9 @@ function App() {
     }
   });
 
-  const handleCategoryClick = (category) => {
-    setSelectedCategory(category); // Set selected category
-  };
+  //const handleCategoryClick = (category) => {
+    //setSelectedCategory(category); // Set selected category
+  //};
 
   const CategoryPage = () => {
     const { categoryName } = useParams();
