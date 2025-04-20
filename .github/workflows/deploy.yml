@@ -1,8 +1,8 @@
- name: Deploy to GitHub Pages (Windows)
+name: Deploy to GitHub Pages (Windows)
 
 on:
   push:
-    branches: [юля] # Или ваша основная ветка
+    branches: [юля]  # Отслеживаем изменения в ветке "юля"
 
 jobs:
   deploy:
@@ -12,11 +12,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16' # Или ваша версия Node.js
+          node-version: '16'  # Или ваша версия Node.js
       - name: Install dependencies
-        run: npm install # Или yarn install
+        run: npm install  # Или yarn install
       - name: Build
-        run: npm run build # Или yarn build
+        run: npm run build  # Или yarn build
 
       - name: Deploy to GitHub Pages
         run: |
