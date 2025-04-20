@@ -5,27 +5,27 @@ import './popup.css'; // Импортируем стили
 
 function Popup({ isOpen, onClose, onLogin, onRegister }) {
   const [isLogin, setIsLogin] = useState(true); // State для переключения между входом и регистрацией
-  const [username, setUsername] = useState('');
+  //const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
   const toggleForm = () => {
     setIsLogin(!isLogin);
   };
   
-  const handleLoginSubmit = (e) => {
-    e.preventDefault();
+  //const handleLoginSubmit = (e) => {
+    //e.preventDefault();
     // Validate username and password (example validation)
-    if (username === 'user' && password === 'password') {
-      onLogin();  // call login function passed from parent
-    } else {
-      alert('Invalid credentials');
-    }
-  };
+    //if (username === 'user' && password === 'password') {
+      //onLogin();  // call login function passed from parent
+    //} else {
+      //alert('Invalid credentials');
+    //}
+  //};
 
-    const handleRegisterSubmit = (e) => {
-    e.preventDefault();
-     onRegister(); // call register function passed from parent
-  };
+    //const handleRegisterSubmit = (e) => {
+    //e.preventDefault();
+     //onRegister(); // call register function passed from parent
+  //};
 
   if (!isOpen) {
     return null; // Ничего не отображать, если всплывающее окно закрыто
