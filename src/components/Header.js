@@ -4,7 +4,7 @@ import './Header.css'; // Импортируем стили
 import FilterSidebar from './FilterSidebar';
 import { Link } from 'react-router-dom';
 
-function Header({ onOpenPopup, onSearch, isLoggedIn }) { // Принимаем onOpenPopup и onSearch
+function Header({ onOpenPopup, onSearch, onFilterChange, onCategorySelect, isLoggedIn }) { // Принимаем onOpenPopup и onSearch
   const handleInputChange = (event) => {
     onSearch(event.target.value); // Вызываем onSearch при изменении значения
   };
@@ -28,7 +28,10 @@ function Header({ onOpenPopup, onSearch, isLoggedIn }) { // Принимаем o
         <Link to="/category/Столы и стулья">Столы и стулья</Link>
         <Link to="/category/Детская мебель">Детская мебель</Link>
       </div>
-      <FilterSidebar onFilterChange={() => {}} />
+      <FilterSidebar 
+        onFilterChange={onFilterChange}
+        onCategorySelect={onCategorySelect}
+      />
     </header>
   );
 }
