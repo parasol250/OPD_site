@@ -2,7 +2,7 @@
   "name": "opd",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://github.com/parasol250/OPD_site.git",
+  "homepage": "https://parasol250.github.io/OPD_site",
   "dependencies": {
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
@@ -23,7 +23,7 @@
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
     "start": "react-scripts start",
-    "build": "set CI=false && react-scripts build",
+    "build": "react-scripts build && cp build/index.html build/404.html",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "server": "node ./src/database.js",
