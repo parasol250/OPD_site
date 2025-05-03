@@ -6,7 +6,7 @@ import checkCredentials from './Login'
 
 function Popup({ isOpen, onClose, onLogin, onRegister }) {
   const [isLogin, setIsLogin] = useState(true); // State для переключения между входом и регистрацией
-  //const [username, setUsername] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
