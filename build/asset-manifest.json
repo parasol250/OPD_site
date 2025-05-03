@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/parasol250/OPD_site.git/static/css/main.18e2d3d4.css",
-    "main.js": "/parasol250/OPD_site.git/static/js/main.d6cc6c51.js",
+    "main.js": "/parasol250/OPD_site.git/static/js/main.37d27997.js",
     "index.html": "/parasol250/OPD_site.git/index.html",
     "main.18e2d3d4.css.map": "/parasol250/OPD_site.git/static/css/main.18e2d3d4.css.map",
-    "main.d6cc6c51.js.map": "/parasol250/OPD_site.git/static/js/main.d6cc6c51.js.map"
+    "main.37d27997.js.map": "/parasol250/OPD_site.git/static/js/main.37d27997.js.map"
   },
   "entrypoints": [
     "static/css/main.18e2d3d4.css",
-    "static/js/main.d6cc6c51.js"
+    "static/js/main.37d27997.js"
   ]
 }

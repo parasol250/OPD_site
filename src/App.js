@@ -4,7 +4,7 @@ import ProductList from './components/ProductList';
 //import FilterSidebar from './components/FilterSidebar';
 import Popup from './components/popup';
 import './App.css';
-import { BrowserRouter, Route, Routes, useParams, useNavigate  } from 'react-router-dom';
+import { BrowserRouter, Route, Routes, useNavigate  } from 'react-router-dom';
 import CategoryPage from './components/CategoryPage';
 
 function AppContent() {
@@ -29,6 +29,7 @@ function AppContent() {
         }
         const data = await response.json();
         // Перемешиваем продукты для случайного порядка
+        console.log(filters); //////// USELESSSSSS
         setProducts(shuffleArray(data)); // Исправлено: сохраняем shuffledProducts
         // Перенаправляем на главную только если мы уже не на категории
         if (!window.location.pathname.includes('/category')) {
@@ -42,7 +43,7 @@ function AppContent() {
       }
     };
     fetchData();
-  }, [navigate]);
+  }, [navigate, filters]);
 
   // Функция для перемешивания массива (алгоритм Фишера-Йетса)
   const shuffleArray = (array) => {
@@ -65,25 +66,25 @@ function AppContent() {
     setSearchTerm(term);
   };
 
-  const handleOpenPopup = () => { // Функция для открытия всплывающего окна
-    setIsPopupOpen(true);
-  };
+  // const handleOpenPopup = () => { // Функция для открытия всплывающего окна
+  //   setIsPopupOpen(true);
+  // };
 
-  const handleClosePopup = () => { // Функция для закрытия всплывающего окна
-    setIsPopupOpen(false);
-  };
+  // const handleClosePopup = () => { // Функция для закрытия всплывающего окна
+  //   setIsPopupOpen(false);
+  // };
 
-  // New function to handle login from Popup
-  const handleLogin = () => {
-    setIsLoggedIn(true);
-    setIsPopupOpen(false);  // close the popup after successful login
-  };
+  // // New function to handle login from Popup
+  // const handleLogin = () => {
+  //   setIsLoggedIn(true);
+  //   setIsPopupOpen(false);  // close the popup after successful login
+  // };
 
-    // New function to handle register from Popup (just close popup as example)
-  const handleRegister = () => {
-    setIsLoggedIn(true);
-    setIsPopupOpen(false);  // close the popup after successful register, also login as example
-  };
+  //   // New function to handle register from Popup (just close popup as example)
+  // const handleRegister = () => {
+  //   setIsLoggedIn(true);
+  //   setIsPopupOpen(false);  // close the popup after successful register, also login as example
+  // };
 
   // const handleCategorySelect = (category) => {
   //   navigate(`/category/${category}`);
@@ -154,4 +155,3 @@ function App() {
 }
 
 export default App;
-
