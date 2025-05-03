@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import ProductList from './components/ProductList';
 //import FilterSidebar from './components/FilterSidebar';
+//import FilterSidebar from './components/FilterSidebar';
 import Popup from './components/popup';
 import './App.css';
 import { BrowserRouter, Route, Routes, useNavigate  } from 'react-router-dom';
@@ -9,7 +10,7 @@ import CategoryPage from './components/CategoryPage';
 
 function AppContent() {
   const [products, setProducts] = useState([]);
-  const [filters, setFilters] = useState({});
+  //const [filters, setFilters] = useState({});
   const [searchTerm, setSearchTerm] = useState(''); // Добавили state для поиска
   const [isPopupOpen, setIsPopupOpen] = useState(false); // State для открытия/закрытия popup
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Состояние аутентификации (пример)
@@ -59,8 +60,8 @@ function AppContent() {
     setFilters(newFilters);
     //Здесь нужно реализовать отправку фильтров на API
     //И обновить стейт products на основе результатов
-    console.log('New filters:', newFilters);
-  };
+    //console.log('New filters:', newFilters);
+  //};
 
   const handleSearch = (term) => { // Добавили обработчик поиска
     setSearchTerm(term);
