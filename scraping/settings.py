@@ -12,6 +12,14 @@ BOT_NAME = "scraping"
 SPIDER_MODULES = ["scraping.spiders"]
 NEWSPIDER_MODULE = "scraping.spiders"
 
+# # Дополнительные настройки User-Agent
+# USER_AGENTS = [
+#     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+#     'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115.0',
+#     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+#     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Safari/605.1.15',
+# ]
+
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = "furniture (+http://www.yourdomain.com)"
@@ -24,26 +32,6 @@ ITEM_PIPELINES = {
     'scraping.pipelines.FurniturePipeline': 300,
 }
 
-DEFAULT_REQUEST_HEADERS = {
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-    'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
-    'Referer': 'https://hoff.ru/',
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-}
-COOKIES_ENABLED = True  # в settings.py
-# Настройки для обхода защиты Hoff
-DOWNLOAD_DELAY = 3
-CONCURRENT_REQUESTS_PER_DOMAIN = 1
-ROTATING_PROXY_LIST = [
-    'http://username:password@95.174.67.50:18080',  # если требуется авторизация
-    'http://185.94.34.12:8080',
-]
-USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-DOWNLOADER_MIDDLEWARES = {
-    'rotating_proxies.middlewares.RotatingProxyMiddleware': 610,
-    'rotating_proxies.middlewares.BanDetectionMiddleware': 620,
-    'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 750,  # Стандартный после ротирующих
-}
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
