@@ -1,53 +1,28 @@
-name: Deploy to GitHub Pages (Windows)
+name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [юля]  # Отслеживаем изменения в ветке "юля"
+    branches: [юля]  # Ветка с вашим кодом
 
 jobs:
   deploy:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16'  # Или ваша версия Node.js
+          node-version: '18'  # Рекомендую актуальную LTS версию
+
       - name: Install dependencies
-        run: npm install  # Или yarn install
-      - name: Build
-        run: npm run build  # Или yarn build
+        run: npm install
 
-      - name: Deploy to GitHub Pages
-        run: |
-          # Создать папку gh-pages, если ее нет
-          if not exist gh-pages (
-            mkdir gh-pages
-          )
+      - name: Build project
+        run: npm run build
 
-          # Очистить папку gh-pages
-          Remove-Item -Path gh-pages\* -Recurse -Force
-
-          # Скопировать содержимое build в gh-pages
-          Copy-Item -Path ${GITHUB_WORKSPACE}/build/* -Destination ${GITHUB_WORKSPACE}/gh-pages -Recurse -Force
-
-          # Переход в gh-pages
-          cd gh-pages
-
-          # Инициализация git (если gh-pages не является git-репозиторием)
-          if (-not (Test-Path ".git")) {
-              git init
-              git remote add origin "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
-          }
-
-          # Добавить все файлы
-          git add .
-
-          # Коммит изменений
-          git commit -m "Deploy to GitHub Pages"
-
-          # Пуш в ветку gh-pages
-          git push -f origin HEAD:gh-pages
-
-env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build
