@@ -5,7 +5,7 @@ import ProductList from './components/ProductList';
 //import FilterSidebar from './components/FilterSidebar';
 import Popup from './components/popup';
 import './App.css';
-import { BrowserRouter, Route, Routes, useNavigate  } from 'react-router-dom';
+import { HashRouter, Route, Routes, useNavigate  } from 'react-router-dom';
 import CategoryPage from './components/CategoryPage';
 
 function AppContent() {
@@ -149,9 +149,9 @@ const filteredProducts = products.filter(product => {
 
 function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <AppContent />
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 
