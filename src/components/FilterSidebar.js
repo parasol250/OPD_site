@@ -1,71 +1,60 @@
 import React, { useState, useEffect } from 'react';
 import './FilterSidebar.css';
 
-const FilterSidebar = ({ onFilterChange }) => {
-  const [priceRange, setPriceRange] = useState(100000);
-  const maxPrice = 100000; // Maximum price value
+const FilterSidebar = ({ onFilterChange, initialPrice = 10000000 }) => {
+  const maxPrice = 10000000; // Maximum price value
+  const [priceRange, setPriceRange] = useState(initialPrice);
   const [material, setMaterial] = useState('');
   const [color, setColor] = useState('');
   const [size, setSize] = useState('');
   const [availability, setAvailability] = useState('');
   const [brand, setBrand] = useState('');
   const [market, setMarket] = useState('');
-  const [filtersList, setFiltersList] = useState({}); // Объект: { material: ['дерево', 'металл'], color: [...] }
+  const [filterOptions, setFilterOptions] = useState({
+    material: [],
+    color: [],
+    size: [],
+    availability: [],
+    brand: [],
+    market: []
+  }); // Объект: { material: ['дерево', 'металл'], color: [...] }
 
   useEffect(() => {
-    fetch('/api/filters')
+    fetch('/api/products')
       .then(res => res.json())
-      .then(data => {
+      .then(products => {
+        // Extract unique values for each filter category
+        const materials = [...new Set(products.map(p => p.material).filter(Boolean))];
+        const colors = [...new Set(products.map(p => p.color).filter(Boolean))];
+        const sizes = [...new Set(products.map(p => p.dimensions).filter(Boolean))];
+        const availabilities = ['В наличии', 'Нет в наличии']; // Assuming this is calculated from stock_quantity
+        const brands = [...new Set(products.map(p => p.brand).filter(Boolean))];
+        const markets = [...new Set(products.map(p => p.shop_id).filter(Boolean))];
 
-        const grouped = {}; // сгруппировать по name
-        data.forEach(f => {
-          if (!grouped[f.name]) grouped[f.name] = [];
-          grouped[f.name].push(f.display_name);
+        setFilterOptions({
+          material: materials,
+          color: colors,
+          size: sizes,
+          availability: availabilities,
+          brand: brands,
+          market: markets
         });
-        setFiltersList(grouped);
-        
-        // Создаем объект с ключами по названиям фильтров
-        // const filtersMap = {};
-        // data.forEach(f => {
-        //   filtersMap[f.name] = f.display_name;
-        // });
-        // // Устанавливаем значения по умолчанию, если есть
-        // // Можно расширить, чтобы получать текущие выбранные значения
-        // if (filtersMap['material']) setMaterial(filtersMap['material']);
-        // if (filtersMap['color']) setColor(filtersMap['color']);
-        // if (filtersMap['size']) setSize(filtersMap['size']);
-        // if (filtersMap['availability']) setAvailability(filtersMap['availability']);
-        // if (filtersMap['brand']) setBrand(filtersMap['brand']);
-        // if (filtersMap['market']) setMarket(filtersMap['market']);
       });
-    // При монтировании компонента устанавливаем максимальное значение цены
-    setPriceRange(100000);
   }, []);
-
-  // Сохраняем фильтры в базу
-  const handleSaveFilters = async () => {
-    const filters = [
-      { name: 'material', displayName: 'Материал', value: material, productId: null },
-      { name: 'color', displayName: 'Цвет', value: color, productId: null },
-      { name: 'size', displayName: 'Размер', value: size, productId: null },
-      { name: 'availability', displayName: 'Наличие', value: availability, productId: null },
-      { name: 'brand', displayName: 'Бренд', value: brand, productId: null },
-      { name: 'market', displayName: 'Магазин', value: market, productId: null },
-      { name: 'price', displayName: 'Цена', value: priceRange.toString(), productId: null },
-    ];
-
-    // Отправляем фильтры на сервер
-    for (const filter of filters) {
-      await fetch('/api/filters/add', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(filter),
-      });
-    }
-  };
   
   const handlePriceChange = (event) => {
-    setPriceRange(parseInt(event.target.value, 10));
+    const newPrice = parseInt(event.target.value, 10);
+    setPriceRange(newPrice);
+    // Немедленно применяем фильтр по цене при изменении ползунка
+    onFilterChange({
+      price: newPrice,
+      material: material || null,
+      color: color || null,
+      dimensions: size || null,
+      availability: availability === 'В наличии' ? true : availability === 'Нет в наличии' ? false : null,
+      brand: brand || null,
+      shop_id: market || null
+    });
   };
 
   const handleMaterialChange = (e) => setMaterial(e.target.value);
@@ -77,15 +66,19 @@ const FilterSidebar = ({ onFilterChange }) => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    onFilterChange({
+    
+    // Convert filter values to match database structure
+    const filters = {
       price: priceRange,
-      material,
-      color,
-      size,
-      availability,
-      brand,
-      market,
-    });
+      material: material || null,
+      color: color || null,
+      dimensions: size || null,
+      availability: availability === 'В наличии' ? true : availability === 'Нет в наличии' ? false : null,
+      brand: brand || null,
+      shop_id: market || null
+    };
+
+    onFilterChange(filters);
   };
 
   return (
@@ -99,6 +92,7 @@ const FilterSidebar = ({ onFilterChange }) => {
             id="price"
             min="0"
             max={maxPrice}
+            step="1000"
             value={priceRange}
             onChange={handlePriceChange}
             className="price-input"
@@ -109,10 +103,7 @@ const FilterSidebar = ({ onFilterChange }) => {
           <label htmlFor="material">Материал</label>
           <select id="material" value={material} onChange={handleMaterialChange}>
             <option value="">Любой</option>
-            {/* <option value="дерево">Дерево</option>
-            <option value="металл">Металл</option>
-            <option value="пластик">Пластик</option> */}
-            {filtersList['material'] && filtersList['material'].map((val) => (
+            {filterOptions.material.map((val) => (
               <option key={val} value={val}>{val}</option>
             ))}
           </select>
@@ -121,63 +112,45 @@ const FilterSidebar = ({ onFilterChange }) => {
         <label htmlFor="color">Цвет</label>
           <select id="color" value={color} onChange={handleColorChange}>
             <option value="">Любой</option>
-            {filtersList['color'] &&
-              filtersList['color'].map((val) => (
-                <option key={val} value={val}>{val}</option>
+            {filterOptions.color.map((val) => (
+              <option key={val} value={val}>{val}</option>
             ))}
-            {/* <option value="красный">Красный</option>
-            <option value="зеленый">Зеленый</option>
-            <option value="черный">Черный</option> */}
           </select>
         </div>
         <div>
         <label htmlFor="size">Размер</label>
           <select id="size" value={size} onChange={handleSizeChange}>
             <option value="">Любой</option>
-            {filtersList['size'] &&
-              filtersList['size'].map((val) => (
-                <option key={val} value={val}>{val}</option>
+            {filterOptions.size.map((val) => (
+              <option key={val} value={val}>{val}</option>
             ))}
-            {/* <option value="маленький">Мини</option>
-            <option value="средний">Норм</option>
-            <option value="большой">Биги</option> */}
           </select>
         </div>
         <div>
         <label htmlFor="availability">Наличие</label>
           <select id="availability" value={availability} onChange={handleAvailabilityChange}>
             <option value="">Все</option>
-            {filtersList['availability'] &&
-              filtersList['availability'].map((val) => (
-                <option key={val} value={val}>{val}</option>
+            {filterOptions.availability.map((val) => (
+              <option key={val} value={val}>{val}</option>
             ))}
-            {/* <option value="есть">В наличии</option>
-            <option value="нет">Нет в наличии</option> */}
           </select>
         </div>
         <div>
         <label htmlFor="brand">Бренд</label>
           <select id="brand" value={brand} onChange={handleBrandChange}>
             <option value="">Любой</option>
-            {filtersList['brand'] &&
-              filtersList['brand'].map((val) => (
-                <option key={val} value={val}>{val}</option>
+            {filterOptions.brand.map((val) => (
+              <option key={val} value={val}>{val}</option>
             ))}
-            {/* <option value="gucci">gucci</option>
-            <option value="prada">prada</option> */}
           </select>
         </div>
         <div>
         <label htmlFor="market">Магазин</label>
           <select id="market" value={market} onChange={handleMarketChange}>
             <option value="">Любой</option>
-            {filtersList['market'] &&
-              filtersList['market'].map((val) => (
-                <option key={val} value={val}>{val}</option>
+            {filterOptions.market.map((val) => (
+              <option key={val} value={val}>{val}</option>
             ))}
-            {/* <option value="ozon">OZON</option>
-            <option value="wb">Wildberries</option>
-            <option value="yandex">Яндекс.Маркет</option> */}
           </select>
         </div>
         <button type="submit">Применить</button>

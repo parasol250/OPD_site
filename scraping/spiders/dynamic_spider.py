@@ -12,7 +12,7 @@ from scraping.items import FurnitureItem
 DEFAULT_SELECTORS = {
     'product_link_selector': 'a::attr(href)',  # Обобщенный селектор ссылок
     'name_selector': 'h1::text',
-    'description_selector': 'p::text',
+    'description_selector': None,
     'price_selector': '.price::text',
     'brand_selector': None, 
     'material_selector': None,
