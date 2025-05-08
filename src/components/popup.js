@@ -35,7 +35,7 @@ function Popup({ isOpen, onClose, onLogin, onRegister }) {
       const isValid = await checkCredentials(username, hashedPassword);
       
       if (isValid) {
-        onLogin();  // call login function passed from parent
+        onLogin(username);  // call login function passed from parent
         onClose();   // close the popup after successful login
       } else {
         setError('Неверные учетные данные');

@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import defaultImage from './default-product-image.jpg'; // Запасное изображение
 
-const ProductCard = ({ product }) => {
+const ProductCard = ({ product, isLoggedIn }) => {
+  const [isFavorite, setIsFavorite] = useState(false);
+  const toggleFavorite = () => {
+    setIsFavorite(!isFavorite);
+  };
   // Проверяем наличие product и его свойств
   if (!product) {
     return <div className="product-card error">Ошибка: данные товара не загружены</div>;
@@ -28,16 +32,6 @@ const ProductCard = ({ product }) => {
     
     return defaultImage;
   };
-
-  // // Проверяем данные в консоли для отладки
-  // console.log('Product data:', {
-  //   id: product.id,
-  //   name: product.name,
-  //   images: product.images,
-  //   image_paths: product.image_paths,
-  //   resolvedImage: getImageSource(),
-  //   original_url: product.original_url
-  // });
 
   // Format price
   const formattedPrice = product.price ? 
@@ -80,6 +74,14 @@ const ProductCard = ({ product }) => {
                   e.target.src = defaultImage;
               }}
           />
+          {isLoggedIn && (
+          <button 
+            onClick={toggleFavorite}
+            className={`favorite-button ${isFavorite ? 'active' : ''}`}
+          >
+            {isFavorite ? '★' : '☆'}
+          </button>
+        )}
       </div>
       <div className="product-info">
         <h3>{product.name}</h3>

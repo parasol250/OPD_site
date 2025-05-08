@@ -14,6 +14,7 @@ function AppContent() {
   const [searchTerm, setSearchTerm] = useState(''); // Добавили state для поиска
   const [isPopupOpen, setIsPopupOpen] = useState(false); // State для открытия/закрытия popup
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Состояние аутентификации (пример)
+  const [userRole, setUserRole] = useState(null); // Добавлено состояние для роли пользователя
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -103,14 +104,33 @@ function AppContent() {
   };
 
   // New function to handle login from Popup
-  const handleLogin = () => {
-    setIsLoggedIn(true);
-    setIsPopupOpen(false);  // close the popup after successful login
+  const handleLogin = async (username) => {
+    try {
+      console.log('Attempting login with:', username);
+      const response = await fetch('http://localhost:5000/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username })
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        setIsLoggedIn(true);
+        setUserRole(data.user.role); // Устанавливаем роль пользователя
+        setIsPopupOpen(false);
+      } else {
+        alert(data.message || 'Authentication failed');
+      }
+    } catch (error) {
+      console.error('Auth error:', error);
+      alert('Authentication failed');
+    }
   };
 
     // New function to handle register from Popup (just close popup as example)
   const handleRegister = () => {
     setIsLoggedIn(true);
+    setUserRole('user'); // По умолчанию присваиваем роль 'user' при регистрации
     setIsPopupOpen(false);  // close the popup after successful register, also login as example
   };
 
@@ -128,11 +148,15 @@ function AppContent() {
         onSearch={handleSearch}
         onFilterChange={handleFilterChange}
         isLoggedIn={isLoggedIn}
+        userRole={userRole}
       />
       <div className="main-content">
         <Routes>
           <Route path="/" element={            
-            <ProductList products={filteredProducts} />
+            <ProductList 
+              products={filteredProducts}
+              isLoggedIn={isLoggedIn}
+             />
             } />
           <Route 
             path="/category/:categoryName" 
@@ -142,6 +166,7 @@ function AppContent() {
                 searchTerm={searchTerm} 
                 loading={loading}
                 error={error}
+                isLoggedIn={isLoggedIn}
               />
             } 
           />
@@ -153,7 +178,7 @@ function AppContent() {
         <Popup
           isOpen={isPopupOpen}
           onClose={() => handleClosePopup()}
-          onLogin={() => handleLogin()}
+          onLogin={handleLogin}
           onRegister={() => handleRegister()}
         />
       )}

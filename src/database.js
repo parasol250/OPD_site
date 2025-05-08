@@ -61,6 +61,22 @@ async function processProductFilters(productId, productData) {
     }
 }
 
+async function authenticateUser(username) {
+    try {
+        console.log('Executing query for username:', username);
+        const result = await client.query(
+            'SELECT id, username, role FROM users WHERE username = $1', 
+            [username]
+        );
+        
+        console.log('Query result:', result.rows);
+        return result.rows[0];
+    } catch (err) {
+        console.error('Database query error:', err);
+        throw err;
+    }
+}
+
 function serveStaticFile(res, filePath, contentType) {
     const fullPath = path.join(__dirname, 'public', filePath);
     
@@ -136,7 +152,49 @@ const server = http.createServer(async (req, res) => {
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ success: true }));
             });
-        } else if (pathname === '/api/products' && req.method === 'GET') {
+        }// Внутри server.createServer, в блок try/catch, после других маршрутов:
+        else if (pathname === '/api/auth' && req.method === 'POST') {
+            let body = '';
+            req.on('data', chunk => { body += chunk.toString(); });
+            req.on('end', async () => {
+                try {
+                    console.log('Received auth request with body:', body); // Логируем входящие данные
+                    const { username } = JSON.parse(body);
+                    if (!username) {
+                        throw new Error('Username parameter is required');
+                    }
+        
+                    console.log('Searching user with username:', username);
+                    const user = await authenticateUser(username);
+                    
+                    if (user) {
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ 
+                            success: true, 
+                            user: {
+                                id: user.id,
+                                username: user.username,
+                                role: user.role // Передаем роль пользователя
+                            }
+                        }));
+                    } else {
+                        res.writeHead(401, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ 
+                            success: false, 
+                            message: 'User not found' 
+                        }));
+                    }
+                } catch (err) {
+                    console.error('Auth error:', err);
+                    res.writeHead(500, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ 
+                        success: false, 
+                        message: 'Server error' 
+                    }));
+                }
+            });
+        }
+         else if (pathname === '/api/products' && req.method === 'GET') {
             try {
                 const result = await client.query(`
                     SELECT 

@@ -4,7 +4,7 @@ import './Header.css'; // Импортируем стили
 import FilterSidebar from './FilterSidebar';
 import { Link } from 'react-router-dom';
 
-function Header({ onOpenPopup, onSearch, onFilterChange, onCategorySelect, isLoggedIn }) { // Принимаем onOpenPopup и onSearch
+function Header({ onOpenPopup, onSearch, onFilterChange, onCategorySelect, isLoggedIn, userRole }) { // Принимаем onOpenPopup и onSearch
   const handleInputChange = (event) => {
     onSearch(event.target.value); // Вызываем onSearch при изменении значения
   };
@@ -18,6 +18,11 @@ function Header({ onOpenPopup, onSearch, onFilterChange, onCategorySelect, isLog
           placeholder="Поиск по названию"
           onChange={handleInputChange}
         />
+        {isLoggedIn && (
+        <button className="favorites-button">
+          {userRole === 'admin' ? 'Админплашка' : '❤️'}
+        </button>
+        )}
         {isLoggedIn ? (
           <div className="user-actions">
             <button className="logout-button" onClick={onOpenPopup}>Сменить аккаунт</button>
@@ -25,6 +30,7 @@ function Header({ onOpenPopup, onSearch, onFilterChange, onCategorySelect, isLog
         ) : (
           <button className="login-button" onClick={onOpenPopup}>Войти</button>
         )}
+        
       </div>
       <div className="furniture-categories">
         <Link to="/category/Диваны и кресла">Диваны и кресла</Link>
