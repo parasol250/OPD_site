@@ -12,13 +12,19 @@ function Header({ onOpenPopup, onSearch, onFilterChange, onCategorySelect, isLog
   return (
     <header className="header">
       <div className="header-content">
-      <Link to="/" className="home-button">Главная</Link> {/* Home button */}
+      <Link to="/" className="home-button">Главная</Link>
         <input
           type="text"
           placeholder="Поиск по названию"
-          onChange={handleInputChange} // Вызываем onSearch при изменении
+          onChange={handleInputChange}
         />
-        <button className="login-button" onClick={onOpenPopup}>Войти</button>
+        {isLoggedIn ? (
+          <div className="user-actions">
+            <button className="logout-button" onClick={onOpenPopup}>Сменить аккаунт</button>
+          </div>
+        ) : (
+          <button className="login-button" onClick={onOpenPopup}>Войти</button>
+        )}
       </div>
       <div className="furniture-categories">
         <Link to="/category/Диваны и кресла">Диваны и кресла</Link>

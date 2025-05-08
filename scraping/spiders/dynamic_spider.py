@@ -1,85 +1,42 @@
 import scrapy
 import psycopg2
-import random
-import time
+import datetime
 from scrapy.exceptions import CloseSpider
-from scrapy.http import Request
-from urllib.parse import urlparse
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
+from itemadapter import ItemAdapter
+from scrapy.pipelines.images import ImagesPipeline
+from scrapy.exceptions import DropItem
 
-# Конфигурация (вынесена в начало файла)
-PROXY_LIST = [
-    'http://94.230.127.180:1080',
-    'http://84.53.245.42:41258',
-    'http://194.186.248.97:80',
-    'http://94.103.86.110:13485',
-    'http://80.87.192.7:3128',
-    'http://46.47.197.210:3128',
-]
+from scraping.items import FurnitureItem
 
-# Глобальная конфигурация
-USE_SELENIUM = False  # Измените на True для использования Selenium
-USER_AGENTS = [
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115.0',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-]
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Default CSS selectors (наиболее часто встречающиеся, подлежат уточнению)
+DEFAULT_SELECTORS = {
+    'product_link_selector': 'a::attr(href)',  # Обобщенный селектор ссылок
+    'name_selector': 'h1::text',
+    'description_selector': 'p::text',
+    'price_selector': '.price::text',
+    'brand_selector': None, 
+    'material_selector': None,
+    'color_selector': None,
+    'dimension_selector': None,
+    'weight_selector': None,
+    'stock_quantity_selector': None,
+    'rating_selector': None,
+    'category_selector': None,  # Добавляем селектор для категории
+}
 
 class DynamicSpider(scrapy.Spider):
     name = "dynamic_spider"
-    
-    custom_settings = {
-        'RETRY_TIMES': 3,
-        'RETRY_HTTP_CODES': [401, 403, 407, 429, 500, 502, 503, 504],
-        'DOWNLOAD_DELAY': 10,
-        'CONCURRENT_REQUESTS': 1,
-        'COOKIES_ENABLED': True,
-        'DOWNLOAD_TIMEOUT': 60,
-        'HTTPERROR_ALLOWED_CODES': [401, 403],
-        'USER_AGENT': random.choice(USER_AGENTS),
-        'ROTATING_PROXY_LIST': PROXY_LIST,
-        'DOWNLOADER_MIDDLEWARES': {
-            'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
-            'scrapy_user_agents.middlewares.RandomUserAgentMiddleware': 400,
-            'rotating_proxies.middlewares.RotatingProxyMiddleware': 610,
-            'rotating_proxies.middlewares.BanDetectionMiddleware': 620,
-        },
-    }
 
     def __init__(self, *args, **kwargs):
         super(DynamicSpider, self).__init__(*args, **kwargs)
+        #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         self.db_host = "localhost"
-        self.db_name = "furniture_aggregator"
-        self.db_user = "postgres"
-        self.db_password = "0000"
+        self.db_name = "furniture_aggregator"  
+        self.db_user = "postgres" # Your DB User
+        self.db_password = "0000" # Your DB pass
         self.conn = None
-        self.shops = {}
-        self.failed_urls = {}
-        self.website_data = {}  # Добавлено для хранения данных о сайтах
-        self.driver = None  # Инициализация драйвера
-        
-        if USE_SELENIUM:
-            try:
-                chrome_options = Options()
-                chrome_options.add_argument("--headless")
-                chrome_options.add_argument("--disable-gpu")
-                chrome_options.add_argument("--no-sandbox")
-                self.driver = webdriver.Chrome(options=chrome_options)
-            except Exception as e:
-                self.logger.error(f"Failed to initialize Selenium: {e}")
-
-    def get_random_headers(self, url):
-        domain = urlparse(url).netloc
-        return {
-            'User-Agent': random.choice(USER_AGENTS),
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-            'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
-            'Referer': f'https://{domain}/',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Connection': 'keep-alive',
-        }
+        self.shops = {} #Stores shop IDS by Name
+        self.categories = {}  # Будем хранить соответствие названий категорий и их ID
 
     def start_requests(self):
         try:
@@ -91,122 +48,143 @@ class DynamicSpider(scrapy.Spider):
             )
             self.cursor = self.conn.cursor()
 
-            # Загрузка данных о магазинах
+            # Pre-load Shops information into "shops" attribute
             self.cursor.execute("SELECT id, name FROM shops")
-            self.shops = {name: id for id, name in self.cursor.fetchall()}
-            
-            # Загрузка данных о сайтах
+            shops_data = self.cursor.fetchall()
+            if not shops_data:
+                raise CloseSpider("No shops found in database!")
+            self.shops = {name: id for id, name in shops_data}
+
+            # Загружаем информацию о категориях
+            self.cursor.execute("SELECT id, name FROM categories")
+            categories_data = self.cursor.fetchall()
+            self.categories = {name.lower(): id for id, name in categories_data}
+
+            #Fetch all website from the table
             self.cursor.execute("""
-                SELECT site, shop_name, product_link_selector, name_selector, 
-                       description_selector, price_selector, brand_selector,
-                       material_selector, color_selector, dimension_selector,
-                       weight_selector, stock_quantity_selector, rating_selector
-                FROM sites WHERE is_active = TRUE
-            """)
-            
-            for row in self.cursor.fetchall():
-                self.website_data[row[0]] = {
-                    'shop_name': row[1],
-                    'product_link_selector': row[2],
-                    'name_selector': row[3],
-                    'description_selector': row[4],
-                    'price_selector': row[5],
-                    'brand_selector': row[6],
-                    'material_selector': row[7],
-                    'color_selector': row[8],
-                    'dimension_selector': row[9],
-                    'weight_selector': row[10],
-                    'stock_quantity_selector': row[11],
-                    'rating_selector': row[12],
+               SELECT
+                    sites.site,
+                    sites.shop_name,
+                    sites.product_link_selector,
+                    sites.name_selector,
+                    sites.description_selector,
+                    sites.price_selector,
+                    sites.brand_selector,
+                    sites.material_selector,
+                    sites.color_selector,
+                    sites.dimension_selector,
+                    sites.weight_selector,
+                    sites.stock_quantity_selector,
+                    sites.rating_selector,
+                    sites.category_selector
+                FROM
+                    sites
+                WHERE
+                    sites.is_active = TRUE;
+                """)
+
+            websites_data = self.cursor.fetchall()
+
+            if not websites_data:
+                raise CloseSpider("No active website configurations found")
+
+             #Store data in this format {URL:{ shop_name:name,
+             #   product_link_selector: data,
+             #   name_selector : data ....
+             #   }}
+            self.website_data = {}
+            for row in websites_data:
+                url = row[0] # index site data is on 0
+                self.website_data[url] = {
+                    'shop_name': row[1], # index shop_name data is on 1
+                    'product_link_selector': row[2] if row[2] else DEFAULT_SELECTORS['product_link_selector'], # index product_link_selector data is on 2
+                    'name_selector': row[3] if row[3] else DEFAULT_SELECTORS['name_selector'],
+                    'description_selector': row[4] if row[4] else DEFAULT_SELECTORS['description_selector'],
+                    'price_selector': row[5] if row[5] else DEFAULT_SELECTORS['price_selector'],
+                    'brand_selector': row[6] if row[6] else DEFAULT_SELECTORS['brand_selector'],
+                    'material_selector': row[7] if row[7] else DEFAULT_SELECTORS['material_selector'],
+                    'color_selector': row[8] if row[8] else DEFAULT_SELECTORS['color_selector'],
+                    'dimension_selector': row[9] if row[9] else DEFAULT_SELECTORS['dimension_selector'],
+                    'weight_selector': row[10] if row[10] else DEFAULT_SELECTORS['weight_selector'],
+                    'stock_quantity_selector': row[11] if row[11] else DEFAULT_SELECTORS['stock_quantity_selector'],
+                    'rating_selector': row[12] if row[12] else DEFAULT_SELECTORS['rating_selector'],
+                    'category_selector': row[13] if row[13] else DEFAULT_SELECTORS['category_selector'],
                 }
 
-            # Создание запросов
-            for url in self.website_data.keys():
-                if USE_SELENIUM and self.driver:
-                    yield self.selenium_request(url, self.website_data[url]['shop_name'])
-                else:
-                    yield Request(
-                        url,
-                        callback=self.parse,
-                        headers=self.get_random_headers(url),
-                        meta={'original_url': url},
-                        dont_filter=True
-                    )
+            self.start_urls = list(self.website_data.keys())  # Get URLs from website_data
+
+        except psycopg2.Error as e:
+            self.logger.error(f"Database connection error: {e}")
+            raise CloseSpider("Failed to connect to the database")
 
         except Exception as e:
-            self.logger.error(f"Initialization error: {e}")
-            raise CloseSpider(f"Initialization failed: {str(e)}")
+            self.logger.error(f"Error fetching website configuration: {e}")
+            raise CloseSpider("Failed to fetch website configuration")
+
         finally:
             if self.conn:
                 self.cursor.close()
                 self.conn.close()
 
-    def selenium_request(self, url, shop_name):
-        try:
-            self.driver.get(url)
-            time.sleep(random.uniform(3, 7))
-            
-            if self.check_captcha():
-                self.solve_captcha()
-                
-            cookies = {c['name']: c['value'] for c in self.driver.get_cookies()}
-            
-            return Request(
-                url,
-                callback=self.parse,
-                headers=self.get_random_headers(url),
-                cookies=cookies,
-                meta={
-                    'original_url': url,
-                    'shop_name': shop_name,
-                    'dont_retry': True,
-                },
-                dont_filter=True
-            )
-        except Exception as e:
-            self.logger.error(f"Selenium error for {url}: {e}")
-            return None
-
-    def check_captcha(self):
-        try:
-            return bool(self.driver.find_element(By.ID, 'captcha'))
-        except:
-            return False
-
-    def solve_captcha(self):
-        time.sleep(10)  # Временное решение для ручного ввода
-        return True
+        for url in self.start_urls:
+            yield scrapy.Request(url, self.parse, meta={'original_url': url})
 
     def parse(self, response):
-        if response.status in [401, 403]:
-            self.logger.warning(f"Access denied for {response.url}")
-            return
-            
         original_url = response.meta.get('original_url')
-        selectors = self.website_data.get(original_url, {})
+        if not self.website_data or original_url not in self.website_data:
+            self.logger.error(f"Website data not loaded for {response.url}.")
+            return
         
-        product_link_selector = selectors.get('product_link_selector')
+        selectors = self.website_data[original_url]
+        # product_links = response.css('a.item::attr(href)').getall()
+        product_links = response.css(selectors.get('product_link_selector')).getall()
 
-        if product_link_selector:
-            product_links = response.css(product_link_selector).getall()
-            for link in product_links:
-                yield response.follow(link, self.parse_product, meta={'original_url':original_url})
+        self.logger.info(f"Found {len(product_links)} product links")
+        
+        # Определяем категорию из URL перед парсингом продуктов
+        current_category = self.detect_category_from_url(response.url)
+        for link in product_links:
+            yield response.follow(link, self.parse_product, 
+                            meta={'original_url': original_url,
+                                    'category': current_category})
 
-        # Pagination handling (example - adjust as needed)
-        next_page = response.css("a.pagination__next::attr(href)").get()
+        # Pagination (example - adjust based on actual site)
+        next_page = response.css('a.pagination__next::attr(href)').get()
         if next_page:
-            yield response.follow(next_page, self.parse, meta={'original_url':original_url})
+            yield response.follow(next_page, self.parse)
+
+    def detect_category_from_url(self, url):
+        """Определяем категорию по URL"""
+        url_parts = url.split('/')
+        if 'catalog' in url_parts:
+            catalog_index = url_parts.index('catalog')
+            if len(url_parts) > catalog_index + 1:
+                return url_parts[catalog_index + 1]
+        return None
 
     def parse_product(self, response):
-        if response.status in [401, 403]:
-            self.logger.warning(f"Access denied for {response.url}")
-            return
         original_url = response.meta.get('original_url')
-        selectors = self.website_data[original_url]
 
+        if not self.website_data or original_url not in self.website_data:
+            self.logger.error(f"Website data not loaded for {response.url}.")
+            return
+
+        selectors = self.website_data[original_url] #Assign Values
+    
         item = FurnitureItem()
-        ################################################################3
+
         item["name"] = response.css(selectors.get('name_selector')).get(default='').strip() if selectors.get('name_selector') else None
+        # Попробуем альтернативные селекторы, если основной не сработал
+        alt_selectors = [
+            'h1.product-title::text',
+            'h1.title::text',
+            'div.product-name h1::text',
+            'meta[property="og:title"]::attr(content)'
+        ]
+        for selector in alt_selectors:
+            item["name"] = response.css(selector).get(default='').strip()
+            if item["name"]:
+                break
         item["description"] = self.extract_description(response, selectors.get('description_selector')) if selectors.get('description_selector') else None
         item["price"] = self.extract_price(response, selectors.get('price_selector')) if selectors.get('price_selector') else None
         item["original_url"] = response.url
@@ -220,6 +198,23 @@ class DynamicSpider(scrapy.Spider):
             self.logger.error(f"Shop '{shop_name}' not found. Skipping item.")
             return  # Skip to the next item
 
+       # Используем категорию из meta, если она есть
+        category_from_meta = response.meta.get('category')
+        if category_from_meta:
+            category_name = self.map_category_name(category_from_meta)
+            if category_name.lower() in self.categories:
+                item["category_id"] = self.categories[category_name.lower()]
+        
+        # Дополнительная проверка по селектору, если категория еще не определена
+        if not item.get("category_id") and selectors.get('category_selector'):
+            category_name = response.css(selectors.get('category_selector')).get(default='').strip()
+            if category_name.lower() in self.categories:
+                item["category_id"] = self.categories[category_name.lower()]
+        
+        # Если категория все еще не определена, используем категорию по умолчанию
+        if not item.get("category_id"):
+            item["category_id"] = 1  # ID категории по умолчанию
+
         item["brand"] = self.extract_brand(response, selectors.get('brand_selector')) if selectors.get('brand_selector') else None
         item["material"] = self.extract_material(response, selectors.get('material_selector')) if selectors.get('material_selector') else None
         item["color"] = self.extract_color(response, selectors.get('color_selector')) if selectors.get('color_selector') else None
@@ -227,7 +222,46 @@ class DynamicSpider(scrapy.Spider):
         item["weight"] = self.extract_weight(response, selectors.get('weight_selector')) if selectors.get('weight_selector') else None
         item["stock_quantity"] = self.extract_stock_quantity(response, selectors.get('stock_quantity_selector')) if selectors.get('stock_quantity_selector') else None
         item["rating"] = self.extract_rating(response, selectors.get('rating_selector')) if selectors.get('rating_selector') else None
+        
+        # Извлечение только главного изображения
+        main_image_url = None
+        
+        # Приоритетные селекторы для главного изображения
+        main_image_selectors = [
+            'meta[property="og:image"]::attr(content)',  # OpenGraph обычно содержит главное изображение
+            'img.product-main-image::attr(src)',
+            'img[itemprop="image"]::attr(src)',
+            'div.product-image-main img::attr(src)',
+            'img.main-image::attr(src)',
+            'img.product-image::attr(src)',
+            'img.product-image::attr(data-src)'
+        ]
+        
+        for selector in main_image_selectors:
+            img = response.css(selector).get()
+            if img and not any(exclude in img.lower() for exclude in ['logo', 'icon', 'sprite', 'placeholder']):
+                main_image_url = response.urljoin(img)
+                break
+        
+        if main_image_url:
+            item['image_urls'] = [main_image_url]  # Только одно главное изображение
+            self.logger.info(f"Found main image for product {item.get('name')}")
+        else:
+            self.logger.debug(f"No main product image found for {response.url}")
+            item['image_urls'] = []  # Пустой список, если изображение не найдено
         yield item
+
+    def map_category_name(self, url_category):
+        """Сопоставляет часть URL с названием категории в БД"""
+        mapping = {
+            'kukhni': 'Кухни',
+            'divany': 'Диваны и кресла',
+            'shkafy': 'Шкафы и стеллажи',
+            'krovati': 'Кровати и матрасы',
+            'kombinirovannye-gostinye': 'Гостиные',
+            'detskaya-mebel': 'Детская мебель'
+        }
+        return mapping.get(url_category, url_category)
 
     def extract_description(self, response, selector):
         if selector:
@@ -299,7 +333,3 @@ class DynamicSpider(scrapy.Spider):
             if brand_element:
                 return brand_element.strip()
         return None
-
-    def closed(self, reason):
-        if hasattr(self, 'driver') and self.driver:
-            self.driver.quit()

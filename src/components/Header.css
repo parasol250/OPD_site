@@ -60,6 +60,43 @@
 .login-button:hover {
   background-color: #3CB371;
 }
+
+.user-actions {
+  display: flex;
+  gap: 10px;
+  margin-left: 180px;
+}
+
+.profile-button {
+  padding: 8px 16px;
+  background-color: #4169E1;
+  color: white;
+  text-decoration: none;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.profile-button:hover {
+  background-color: #6495ED;
+}
+
+.logout-button {
+  padding: 8px 16px;
+  background-color: #2E8B57;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.logout-button:hover {
+  background-color: #3CB371;
+}
   
   /* Дополнительные стили для адаптивности (по желанию) */
   @media (max-width: 768px) {

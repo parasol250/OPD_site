@@ -32,8 +32,4 @@ async function checkCredentials(username, password_hash) {
       }
 }
 
-checkCredentials('a','b');
-
-console.log('asdfghjk');
-
 module.exports=checkCredentials;

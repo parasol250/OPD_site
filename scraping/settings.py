@@ -12,14 +12,6 @@ BOT_NAME = "scraping"
 SPIDER_MODULES = ["scraping.spiders"]
 NEWSPIDER_MODULE = "scraping.spiders"
 
-# # Дополнительные настройки User-Agent
-# USER_AGENTS = [
-#     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-#     'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115.0',
-#     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-#     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Safari/605.1.15',
-# ]
-
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = "furniture (+http://www.yourdomain.com)"
@@ -29,9 +21,13 @@ ROBOTSTXT_OBEY = False
 
 
 ITEM_PIPELINES = {
-    'scraping.pipelines.FurniturePipeline': 300,
+    'scrapy.pipelines.images.ImagesPipeline': 1,
+    'scraping.pipelines.FurnitureImagesPipeline': 100,
+    'scraping.pipelines.FurniturePipeline': 200,
 }
-
+IMAGES_STORE = 'public/images'
+IMAGES_URLS_FIELD = 'image_urls'
+IMAGES_RESULT_FIELD = 'image_paths'
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
