@@ -1,0 +1,99 @@
+/* AdminPanel.css */
+.admin-panel-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .admin-panel {
+    background-color: white;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    position: relative;
+    padding-top: 40px; /* Добавляем место для крестика */
+  }
+  
+  .close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+    z-index: 10;
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+  }
+  
+  .close-button:hover {
+    color: #333;
+    background-color: #f0f0f0;
+  }
+  
+  .admin-panel-header {
+    padding: 0 20px 20px;
+    text-align: center;
+  }
+  
+  .admin-panel-header h2 {
+    margin: 0;
+    color: #333;
+    font-size: 1.5rem;
+  }
+  
+  .admin-panel-content {
+    padding: 0 30px 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+  }
+  
+  .admin-section {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  }
+  
+  .admin-section h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #2E8B57;
+    font-size: 1.2rem;
+  }
+  
+  .admin-btn {
+    display: block;
+    width: 100%;
+    padding: 10px 15px;
+    margin: 8px 0;
+    background-color: #2E8B57;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: background-color 0.2s;
+  }
+  
+  .admin-btn:hover {
+    background-color: #3CB371;
+  }
