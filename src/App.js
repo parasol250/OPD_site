@@ -7,6 +7,8 @@ import './App.css';
 import { BrowserRouter, Route, Routes, useNavigate  } from 'react-router-dom';
 import CategoryPage from './components/CategoryPage';
 import FavoritesModal from './components/FavouritesModal';
+import AdminPanel from './components/AdminPanel'; 
+
 
 function AppContent() {
   const [products, setProducts] = useState([]);
@@ -33,6 +35,7 @@ function AppContent() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -165,6 +168,14 @@ function AppContent() {
     localStorage.removeItem('favorites');
   };
 
+  const handleOpenAdminPanel = () => {
+    setShowAdminPanel(true);
+  };
+
+  const handleCloseAdminPanel = () => {
+    setShowAdminPanel(false);
+  };
+
   // Добавим функции для работы с избранным
   const toggleFavorite = (productId) => {
     setFavorites(prev => {
@@ -188,6 +199,7 @@ function AppContent() {
         isLoggedIn={isLoggedIn}
         userRole={userRole}
         onShowFavorites={() => setShowFavorites(true)}
+        onOpenAdminPanel={handleOpenAdminPanel}
       />
       <div className="main-content">
         <Routes>
@@ -229,6 +241,9 @@ function AppContent() {
           onRegister={() => handleRegister()}
         />
       )}
+      {showAdminPanel && (
+          <AdminPanel onClose={handleCloseAdminPanel} />
+        )}
     </div>
   );
 }
