@@ -1,0 +1,115 @@
+/* FilterSidebar.css */
+.filter-sidebar {
+  width: 100%; /* Занимает всю доступную ширину */
+  padding: 10px;
+  box-sizing: border-box;
+}
+  
+.filter-sidebar h2 { /* Скрываем заголовок "Фильтры" */
+  display: none;
+}
+
+.filter-sidebar form {
+  display: flex;          /* Располагаем фильтры в строку */
+  flex-wrap: wrap;       /* Переносим фильтры на новую строку, если не помещаются */
+  justify-content: center;
+  align-items: center; /* Center items vertically */
+}
+
+.filter-sidebar form > div {
+  margin: 5px;            /* Отступы между фильтрами */
+}
+
+.filter-sidebar label {
+  display: block;        /* Размещаем лейбл над селектом */
+  margin-bottom: 3px;
+  font-size: 0.8em;
+  text-align: center;   /* Центрируем текст лейбла */
+}
+
+.filter-sidebar select {
+  padding: 5px;           /* Внутренние отступы в селекте */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.9em;
+  width: 120px;           /* Fixed width for each select */
+}
+
+.filter-sidebar button {
+  display: none;         /* Скрываем кнопку "Применить" */
+}
+
+/* ПОЛЗУУУУУУУУУУУУУУУУУНООООООООООК ЦЕНЫ*/
+.price-range-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.price-label {
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.price-input {
+  width: 100%;
+  -webkit-appearance: none; /* Сброс стилей браузера по умолчанию */
+  height: 8px;
+  border-radius: 4px;
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+
+.price-input:hover {
+  opacity: 1;
+}
+
+.price-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #18731b;
+  cursor: pointer;
+}
+
+.price-input::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #4CAF50;
+  cursor: pointer;
+}
+
+.price-value {
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+  color: #555;
+}
+
+
+@media (max-width: 600px) {
+  .filter-sidebar form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-sidebar form > div {
+    width: 100%;
+    margin: 5px 0;
+  }
+
+  .filter-sidebar label {
+    text-align: left;
+  }
+
+  .filter-sidebar select {
+    width: 100%;
+  }
+}

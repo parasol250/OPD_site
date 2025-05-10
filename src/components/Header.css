@@ -1,0 +1,229 @@
+.header {
+  background-color: #f0f0f0;
+  padding: 20px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+  
+.header-content {
+    display: flex;
+    align-items: center;            /*  Центрируем элементы по вертикали */
+    flex-grow: 1;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+.header-content input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 1000px;
+    margin-left: auto;    /*  Прижимаем к правому краю */
+}
+
+.home-button {
+  padding: 8px 16px;
+  background-color: #2E8B57;
+  color: white;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+  white-space: nowrap;
+  font-weight: bold;
+  margin-right: 10px; /* Spacing between home button and login button */
+}
+.home-button:hover {
+  background-color: #3CB371;
+}
+
+.favorites-button {
+  padding: 8px 16px;
+  background-color: #ffffff;
+  color: white;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+  white-space: nowrap;
+  font-weight: bold;
+  margin-right: 10px; /* Spacing between home button and login button */
+  }
+  .favorites-button:hover {
+    background-color: #3CB371;
+  }
+  .admin-button {
+  padding: 8px 16px;
+  background-color: white;
+  color: #2E8B57;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+  white-space: nowrap;
+  font-weight: bold;
+  margin-right: 10px; /* Spacing between home button and login button */
+  }
+  .admin-button:hover {
+    background-color: #3CB371;
+  }
+
+/* Стили для поисковой строки */
+.search-container {
+  flex-grow: 1;
+  min-width: 200px;
+  max-width: 600px;
+}
+
+.search-bar {
+  width: 100%;
+  position: relative;
+ }
+  
+.search-bar input {
+  padding: 10px 15px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  width: 100%;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+}
+.search-bar input:focus {
+  border-color: #2E8B57;
+  outline: none;
+}
+  
+.login-button {
+  background-color: #2E8B57; /* Зеленый цвет */
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-left: 180px;
+  transition: background-color 0.3s ease;
+  white-space: nowrap;
+  font-weight: bold;
+}
+  
+.login-button:hover {
+  background-color: #3CB371;
+}
+
+.user-actions {
+  display: flex;
+  gap: 10px;
+  margin-left: auto;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.profile-button {
+  padding: 8px 16px;
+  background-color: #4169E1;
+  color: white;
+  text-decoration: none;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.profile-button:hover {
+  background-color: #6495ED;
+}
+
+.logout-button {
+  padding: 8px 16px;
+  background-color: #2E8B57;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.logout-button:hover {
+  background-color: #3CB371;
+}
+
+.furniture-categories {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.furniture-categories a {
+  background-color: #2E8B57; /* Sea Green (Хвойный цвет) */
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s ease; /* плавное изменение цвета фона */
+}
+
+.furniture-categories a:hover {
+  background-color: #3CB371; /* Medium Sea Green (более светлый хвойный) */
+}
+
+/* Адаптивные стили */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  
+  .header-content {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .search-container {
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  .user-actions {
+    margin-left: 0;
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .furniture-categories {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .user-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .user-actions button {
+    width: 100%;
+  }
+  
+  .furniture-categories a {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+}
