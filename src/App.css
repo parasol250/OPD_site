@@ -4,40 +4,11 @@
   min-height: 100vh;
 }
 
-.header {
-  background-color: #f0f0f0;
-  padding: 20px;
-  text-align: center;
-  display: flex;
-  justify-content: space-between; /* Выравниваем элементы по краям */
-  align-items: center;
-}
-
-.search-bar {
-  margin-right: auto; /* Отодвигаем поисковую строку вправо */
-  flex-grow: 1;
-  padding-left: 220px;
-  padding-right: 200px;
-  display: grid;
-  gap: 20px;
-  width: 200px;
-}
-
-.search-bar input {
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
 .main-content {
-  display: flex;
-  flex-grow: 1;
-}
-
-.filter-sidebar {
-  width: 200px;
+  display: flex;           /* Use flexbox */
+  flex-direction: column;  /* Stack items vertically */
+     /* Stretch items to fill container width */
   padding: 20px;
-  background-color: #eee;
 }
 
 .product-list {
