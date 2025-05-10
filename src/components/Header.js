@@ -4,7 +4,7 @@ import './Header.css'; // Импортируем стили
 import FilterSidebar from './FilterSidebar';
 import { Link } from 'react-router-dom';
 
-function Header({ onOpenPopup, onSearch, onFilterChange, onCategorySelect, isLoggedIn, userRole }) { // Принимаем onOpenPopup и onSearch
+function Header({ onOpenPopup, onSearch, onFilterChange, onCategorySelect, isLoggedIn, userRole, onShowFavorites }) { // Принимаем onOpenPopup и onSearch
   const handleInputChange = (event) => {
     onSearch(event.target.value); // Вызываем onSearch при изменении значения
   };
@@ -18,11 +18,26 @@ function Header({ onOpenPopup, onSearch, onFilterChange, onCategorySelect, isLog
           placeholder="Поиск по названию"
           onChange={handleInputChange}
         />
-        {isLoggedIn && (
+        {isLoggedIn && userRole === 'user' && (
+          <button 
+            className="favorites-button"
+            onClick={onShowFavorites} // Используем переданный обработчик
+          >
+            ❤️
+          </button>
+        )}
+        {isLoggedIn && userRole === 'admin' && (
+          <button 
+            className="admin-button"
+          >
+            Админплашка
+          </button>
+        )}
+        {/* {isLoggedIn && (
         <button className="favorites-button">
           {userRole === 'admin' ? 'Админплашка' : '❤️'}
         </button>
-        )}
+        )}         */}
         {isLoggedIn ? (
           <div className="user-actions">
             <button className="logout-button" onClick={onOpenPopup}>Сменить аккаунт</button>

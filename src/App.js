@@ -6,21 +6,34 @@ import Popup from './components/popup';
 import './App.css';
 import { BrowserRouter, Route, Routes, useNavigate  } from 'react-router-dom';
 import CategoryPage from './components/CategoryPage';
+import FavoritesModal from './components/FavouritesModal';
 
 function AppContent() {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [filters, setFilters] = useState({});
-  const [searchTerm, setSearchTerm] = useState(''); // Добавили state для поиска
-  const [isPopupOpen, setIsPopupOpen] = useState(false); // State для открытия/закрытия popup
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Состояние аутентификации (пример)
-  const [userRole, setUserRole] = useState(null); // Добавлено состояние для роли пользователя
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return localStorage.getItem('isLoggedIn') === 'true';
+  });
+  const [userRole, setUserRole] = useState(() => {
+    return localStorage.getItem('userRole') || null;
+  });
+  const [currentUser, setCurrentUser] = useState(() => {
+    const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const role = localStorage.getItem('userRole');
+    return loggedIn && role ? { role } : null;
+  });
+  const [favorites, setFavorites] = useState(() => {
+    const saved = localStorage.getItem('favorites');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [showFavorites, setShowFavorites] = useState(false);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-
-  // Имитация API вызова (замените реальным API)
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -48,6 +61,17 @@ function AppContent() {
     fetchData();
   }, [navigate]);
 
+  useEffect(() => {
+    localStorage.setItem('isLoggedIn', isLoggedIn.toString());
+  }, [isLoggedIn]);
+  
+  useEffect(() => {
+    if (userRole) {
+      localStorage.setItem('userRole', userRole);
+    } else {
+      localStorage.removeItem('userRole');
+    }
+  }, [userRole]);
 
   // Применение фильтров к данным
   useEffect(() => {
@@ -74,7 +98,9 @@ function AppContent() {
     setFilteredProducts(result);
   }, [filters, searchTerm, products]);
 
-  // Функция для перемешивания массива (алгоритм Фишера-Йетса)
+  
+
+  // (алгоритм Фишера-Йетса)
   const shuffleArray = (array) => {
     const newArray = [...array];
     for (let i = newArray.length - 1; i > 0; i--) {
@@ -86,27 +112,15 @@ function AppContent() {
 
   const handleFilterChange = (newFilters) => {
     setFilters(newFilters);
-    //Здесь нужно реализовать отправку фильтров на API
-    //И обновить стейт products на основе результатов
-    //console.log('New filters:', newFilters);
   };
 
-  const handleSearch = (term) => { // Добавили обработчик поиска
-    setSearchTerm(term);
-  };
+  const handleSearch = (term) => {setSearchTerm(term);};
+  const handleOpenPopup = () => {setIsPopupOpen(true);};
+  const handleClosePopup = () => {setIsPopupOpen(false);};
 
-  const handleOpenPopup = () => { // Функция для открытия всплывающего окна
-    setIsPopupOpen(true);
-  };
-
-  const handleClosePopup = () => { // Функция для закрытия всплывающего окна
-    setIsPopupOpen(false);
-  };
-
-  // New function to handle login from Popup
-  const handleLogin = async (username) => {
+  const handleLogin = async (username, role) => {
     try {
-      console.log('Attempting login with:', username);
+      //console.log('Attempting login with:', username);
       const response = await fetch('http://localhost:5000/api/auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -116,6 +130,7 @@ function AppContent() {
       const data = await response.json();
       if (data.success) {
         setIsLoggedIn(true);
+        setCurrentUser({ username, role: data.user.role });
         setUserRole(data.user.role); // Устанавливаем роль пользователя
         setIsPopupOpen(false);
       } else {
@@ -127,16 +142,39 @@ function AppContent() {
     }
   };
 
-    // New function to handle register from Popup (just close popup as example)
-  const handleRegister = () => {
+  const handleRegister = async (username) => {
+    try {
     setIsLoggedIn(true);
-    setUserRole('user'); // По умолчанию присваиваем роль 'user' при регистрации
-    setIsPopupOpen(false);  // close the popup after successful register, also login as example
+    setCurrentUser({ username, role: 'user' });
+    setUserRole('user');
+    setIsPopupOpen(false);
+    localStorage.setItem('isLoggedIn', 'true');
+    console.log(`User ${username} registered successfully`);
+    } catch (error) {
+      console.error('Registration error:', error);
+    }
+  };
+  
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setCurrentUser(null); // Важно сбросить currentUser
+    setUserRole(null);
+    setFavorites([]); // Очищаем избранное при выходе
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('favorites');
   };
 
-  // const handleCategorySelect = (category) => {
-  //   navigate(`/category/${category}`);
-  // };
+  // Добавим функции для работы с избранным
+  const toggleFavorite = (productId) => {
+    setFavorites(prev => {
+      const newFavorites = prev.includes(productId)
+        ? prev.filter(id => id !== productId)
+        : [...prev, productId];
+      localStorage.setItem('favorites', JSON.stringify(newFavorites));
+      return newFavorites;
+    });
+  };
 
   if (loading) return <div>Loading...</div>;
   if (error)return <div>Error: {error.message}</div>;
@@ -144,18 +182,21 @@ function AppContent() {
   return (
     <div className="app-container">
       <Header
-        onOpenPopup={() => handleOpenPopup()}
+        onOpenPopup={isLoggedIn ? handleLogout : handleOpenPopup}
         onSearch={handleSearch}
         onFilterChange={handleFilterChange}
         isLoggedIn={isLoggedIn}
         userRole={userRole}
+        onShowFavorites={() => setShowFavorites(true)}
       />
       <div className="main-content">
         <Routes>
           <Route path="/" element={            
             <ProductList 
               products={filteredProducts}
-              isLoggedIn={isLoggedIn}
+              currentUser={currentUser}
+              favorites={favorites}
+              toggleFavorite={toggleFavorite}
              />
             } />
           <Route 
@@ -166,14 +207,20 @@ function AppContent() {
                 searchTerm={searchTerm} 
                 loading={loading}
                 error={error}
-                isLoggedIn={isLoggedIn}
+                currentUser={currentUser}
               />
             } 
           />
-          {/* <Route path="/category/:categoryName" element={<CategoryPage />} /> */}
         </Routes>
       </div>
-
+      {showFavorites && (
+        <FavoritesModal 
+          show={showFavorites}
+          onClose={() => setShowFavorites(false)}
+          favorites={favorites}
+          products={products}
+        />
+      )}
       {isPopupOpen && (
         <Popup
           isOpen={isPopupOpen}

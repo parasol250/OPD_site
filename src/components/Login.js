@@ -5,12 +5,14 @@ async function check(username, password_hash, data){
     // 1. Find user in "database"
     const user = data.find((u) => u.username === username);
     if (!user) {
-       
+       console.log('User not found');
+       return false;
     }
     // 2. Compare hashed password
     const isPasswordValid = (password_hash === user.password_hash);
     if (!isPasswordValid) {
-        
+        console.log('Invalid password');
+        return false;
     }
     return (true);
 }
@@ -32,4 +34,4 @@ async function checkCredentials(username, password_hash) {
       }
 }
 
-module.exports=checkCredentials;
+export default checkCredentials;

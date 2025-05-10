@@ -194,6 +194,115 @@ const server = http.createServer(async (req, res) => {
                 }
             });
         }
+
+        else if ((pathname === '/api/check-username' || pathname === '/api/checkusername') && req.method === 'GET') {
+            console.log('Check username endpoint accessed'); // Логирование для отладки
+            console.log(`Received request: ${req.method} ${pathname}`);
+            console.log('Check username endpoint hit');
+            const username = parsedUrl.query.username;
+            if (!username) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Username parameter is required' }));
+                return;
+            }
+
+            try {
+                const result = await client.query(
+                'SELECT id FROM users WHERE username = $1', 
+                [username]
+                );
+                
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ exists: result.rows.length > 0 }));
+            } catch (err) {
+                console.error('Database error:', err);
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Database error' }));
+            }
+        }
+
+        else if (pathname === '/api/register' && req.method === 'POST') {
+            let body = '';
+            req.on('data', chunk => { body += chunk.toString(); });
+            req.on('end', async () => {
+                try {
+                    const { username, password_hash } = JSON.parse(body);
+                    
+                    if (!username || !password_hash) {
+                        res.writeHead(400, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ success: false, error: 'Username and password are required' }));
+                        return;
+                    }
+
+                    // Проверка существования пользователя
+                    const userExists = await client.query(
+                        'SELECT id FROM users WHERE username = $1', 
+                        [username]
+                    );
+                    if (userExists.rows.length > 0) {
+                        return res.status(400).json({ error: 'Username already exists' });
+                    }
+
+                    // Создание пользователя
+                    const newUser = await client.query(
+                        `INSERT INTO users (username, password_hash, role, created_at) 
+                        VALUES ($1, $2, 'user', NOW()) 
+                        RETURNING id, username, role`,
+                        [username, password_hash]
+                    );
+
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ 
+                        success: true,
+                        user: newUser.rows[0]
+                    }));
+                } catch (err) {
+                    console.error('Registration error details:', err);
+                    res.writeHead(500, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ 
+                        error: 'Registration failed',
+                        details: err.message  // Добавляем детали ошибки
+                    }));
+                }
+            });
+        }
+
+        else if (pathname === '/api/login' && req.method === 'POST') {
+            let body = '';
+            req.on('data', chunk => { body += chunk.toString(); });
+            req.on('end', async () => {
+                try {
+                    const { username, password_hash } = JSON.parse(body);
+                    
+                    if (!username || !password_hash) {
+                        res.writeHead(400, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ success: false, error: 'Username and password are required' }));
+                        return;
+                    }
+
+                    const user = await authenticateUser(username, password_hash);
+                    if (user) {
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ 
+                            success: true, 
+                            user: {
+                                id: user.id,
+                                username: user.username,
+                                role: user.role
+                            }
+                        }));
+                    } else {
+                        res.writeHead(401, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ success: false, error: 'Invalid credentials' }));
+                    }
+                } catch (err) {
+                    console.error('Login error:', err);
+                    res.writeHead(500, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ success: false, error: 'Login failed' }));
+                }
+            });
+        }
+
          else if (pathname === '/api/products' && req.method === 'GET') {
             try {
                 const result = await client.query(`

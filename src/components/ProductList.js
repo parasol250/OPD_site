@@ -2,7 +2,7 @@ import React from 'react';
 import ProductCard from './ProductCard';
 import './ProductList.css';
 
-function ProductList({ products }) {
+function ProductList({ products, currentUser, favorites, toggleFavorite }) {
   console.log("Products in ProductList:", products);
   console.log("Products with images:", products.map(p => ({
     id: p.id,
@@ -24,7 +24,13 @@ function ProductList({ products }) {
         original_url: p.original_url 
       })))}
       {products.map(product => (
-          <ProductCard key={product.id} product={product} /> // Используем ProductCard
+          <ProductCard
+            key={product.id}
+            product={product}
+            currentUser={currentUser}
+            isFavorite={favorites && favorites.includes(product.id)}
+            toggleFavorite={toggleFavorite}
+          /> // Используем ProductCard
       ))}
     </div>
   );

@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
 import defaultImage from './default-product-image.jpg'; // Запасное изображение
 
-const ProductCard = ({ product, isLoggedIn }) => {
-  const [isFavorite, setIsFavorite] = useState(false);
-  const toggleFavorite = () => {
-    setIsFavorite(!isFavorite);
-  };
+const ProductCard = ({ product, currentUser, isFavorite, toggleFavorite }) => {
+
   // Проверяем наличие product и его свойств
   if (!product) {
     return <div className="product-card error">Ошибка: данные товара не загружены</div>;
@@ -74,14 +71,17 @@ const ProductCard = ({ product, isLoggedIn }) => {
                   e.target.src = defaultImage;
               }}
           />
-          {isLoggedIn && (
-          <button 
-            onClick={toggleFavorite}
-            className={`favorite-button ${isFavorite ? 'active' : ''}`}
-          >
-            {isFavorite ? '★' : '☆'}
-          </button>
-        )}
+          {currentUser?.role === 'user' && (
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleFavorite(product.id);
+              }}
+              className={`favorite-button ${isFavorite ? 'active' : ''}`}
+            >
+              {isFavorite ? '★' : '☆'}
+            </button>
+          )}
       </div>
       <div className="product-info">
         <h3>{product.name}</h3>
