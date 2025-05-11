@@ -85,7 +85,7 @@ const ProductCard = ({ product, currentUser, isFavorite, toggleFavorite }) => {
       </div>
       <div className="product-info">
         <h3>{product.name}</h3>
-        {product.description && <p className="description">{product.description}</p>}
+        {/* {product.description && <p className="description">{product.description}</p>} */}
         <p className="price">{formattedPrice}</p>
         {product.shop_name && <p className="store">Магазин: {product.shop_name}</p>}
         {product.original_url ? (

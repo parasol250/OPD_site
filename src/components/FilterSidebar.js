@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import './FilterSidebar.css';
 
 const FilterSidebar = ({ onFilterChange, initialPrice = 10000000 }) => {
-  const maxPrice = 10000000; // Maximum price value
+  const [minPrice, setMinPrice] = useState(0);
+  const [maxPrice, setMaxPrice] = useState(100000);
   const [priceRange, setPriceRange] = useState(initialPrice);
   const [material, setMaterial] = useState('');
   const [color, setColor] = useState('');
@@ -17,7 +18,7 @@ const FilterSidebar = ({ onFilterChange, initialPrice = 10000000 }) => {
     availability: [],
     brand: [],
     market: []
-  }); // Объект: { material: ['дерево', 'металл'], color: [...] }
+  });
 
   useEffect(() => {
     fetch('/api/products')
