@@ -103,11 +103,12 @@ function serveStaticFile(res, filePath, contentType) {
 const server = http.createServer(async (req, res) => {
     const parsedUrl = url.parse(req.url, true);
     const pathname = parsedUrl.pathname;
+    const allowedMethods = ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'];
 
     // CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', allowedMethods.join(','));
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
     if (req.method === 'OPTIONS') {
@@ -393,14 +394,17 @@ const server = http.createServer(async (req, res) => {
           // Удаляем пользователя
           await client.query('DELETE FROM users WHERE id = $1', [userId]);
           
-          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.writeHead(200, { 
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*' 
+          });          
           res.end(JSON.stringify({ success: true }));
+        return;
         } catch (err) {
           console.error('Error deleting user:', err);
           res.writeHead(500, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ error: 'Ошибка при удалении пользователя' }));
         }
-        return;
       } else{
             res.writeHead(404, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ error: 'Endpoint not found' }));
