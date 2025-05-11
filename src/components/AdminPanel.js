@@ -15,7 +15,6 @@ function AdminPanel({ onClose }) {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // Функция загрузки пользователей
   const fetchUsers = async () => {
     setLoadingUsers(true);
     try {
@@ -32,7 +31,6 @@ function AdminPanel({ onClose }) {
     }
   };
 
-  // Функция удаления пользователя
   const deleteUser = async (userId) => {
     if (!window.confirm('Вы уверены, что хотите удалить этого пользователя?')) {
       return;
@@ -40,7 +38,11 @@ function AdminPanel({ onClose }) {
 
     try {
       const response = await fetch(`http://localhost:5000/api/users/${userId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+          },
+        mode: 'cors',
       });
 
       if (!response.ok) {
