@@ -1,18 +1,18 @@
 // Header.js
 import React from 'react';
-import './Header.css'; // Импортируем стили
+import './Header.css';
 import FilterSidebar from './FilterSidebar';
 import { Link } from 'react-router-dom';
 
-function Header({ onOpenPopup, onSearch, onFilterChange, onCategorySelect, isLoggedIn, userRole, onShowFavorites }) { // Принимаем onOpenPopup и onSearch
+function Header({ onOpenPopup, onSearch, onFilterChange, onCategorySelect, isLoggedIn, userRole, onShowFavorites, onOpenAdminPanel }) {
   const handleInputChange = (event) => {
-    onSearch(event.target.value); // Вызываем onSearch при изменении значения
+    onSearch(event.target.value);
   };
   
   return (
     <header className="header">
       <div className="header-content">
-      <Link to="/" className="home-button">Главная</Link>
+        <Link to="/" className="home-button">Главная</Link>
         <input
           type="text"
           placeholder="Поиск по названию"
@@ -21,23 +21,19 @@ function Header({ onOpenPopup, onSearch, onFilterChange, onCategorySelect, isLog
         {isLoggedIn && userRole === 'user' && (
           <button 
             className="favorites-button"
-            onClick={onShowFavorites} // Используем переданный обработчик
+            onClick={onShowFavorites}
           >
-            ❤️
+            ♥
           </button>
         )}
         {isLoggedIn && userRole === 'admin' && (
           <button 
             className="admin-button"
+            onClick={onOpenAdminPanel}
           >
-            Админплашка
+            Админпанель
           </button>
         )}
-        {/* {isLoggedIn && (
-        <button className="favorites-button">
-          {userRole === 'admin' ? 'Админплашка' : '❤️'}
-        </button>
-        )}         */}
         {isLoggedIn ? (
           <div className="user-actions">
             <button className="logout-button" onClick={onOpenPopup}>Сменить аккаунт</button>
@@ -45,7 +41,6 @@ function Header({ onOpenPopup, onSearch, onFilterChange, onCategorySelect, isLog
         ) : (
           <button className="login-button" onClick={onOpenPopup}>Войти</button>
         )}
-        
       </div>
       <div className="furniture-categories">
         <Link to="/category/Диваны и кресла">Диваны и кресла</Link>

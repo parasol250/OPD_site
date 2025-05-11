@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import defaultImage from './default-product-image.jpg'; // Запасное изображение
+import './ProductCard.css';
+import defaultImage from './default-product-image.jpg';
 
 const ProductCard = ({ product, currentUser, isFavorite, toggleFavorite }) => {
 
@@ -71,7 +71,7 @@ const ProductCard = ({ product, currentUser, isFavorite, toggleFavorite }) => {
                   e.target.src = defaultImage;
               }}
           />
-          {currentUser?.role === 'user' && (
+          {currentUser && currentUser.role === 'user' && (
             <button 
               onClick={(e) => {
                 e.stopPropagation();
@@ -79,7 +79,7 @@ const ProductCard = ({ product, currentUser, isFavorite, toggleFavorite }) => {
               }}
               className={`favorite-button ${isFavorite ? 'active' : ''}`}
             >
-              {isFavorite ? '★' : '☆'}
+              {isFavorite ? '♥' : '♡'}
             </button>
           )}
       </div>

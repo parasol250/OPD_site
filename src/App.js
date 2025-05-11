@@ -1,17 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import ProductList from './components/ProductList';
-import FilterSidebar from './components/FilterSidebar';
 import Popup from './components/popup';
 import './App.css';
 import { BrowserRouter, Route, Routes, useNavigate  } from 'react-router-dom';
 import CategoryPage from './components/CategoryPage';
 import FavoritesModal from './components/FavouritesModal';
+import AdminPanel from './components/AdminPanel'; 
+
 
 function AppContent() {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
-  const [filters, setFilters] = useState({});
+  const [filters, setFilters] = useState({
+    price: null,
+    material: null,
+    color: null,
+    dimensions: null,
+    availability: null,
+    brand: null,
+    shop_id: null
+  });
   const [searchTerm, setSearchTerm] = useState('');
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
@@ -33,6 +42,7 @@ function AppContent() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -77,16 +87,31 @@ function AppContent() {
   useEffect(() => {
     let result = [...products];
     
-    // Фильтрация по цене
-    if (filters.price) {
-      result = result.filter(p => p.price <= filters.price);
+    /// Фильтрация по цене
+    if (filters.price !== null) {
+      result = result.filter(p => {
+        const productPrice = p.price || 0;
+        return productPrice <= filters.price;
+      });
     }
-    
-    // Фильтрация по другим параметрам
     if (filters.material) {
       result = result.filter(p => p.material === filters.material);
     }
-    // ... другие фильтры
+    if (filters.color) {
+      result = result.filter(p => p.color === filters.color);
+    }
+    if (filters.dimensions) {
+      result = result.filter(p => p.dimensions === filters.dimensions);
+    }
+    if (filters.availability !== null) {
+      result = result.filter(p => p.availability === filters.availability);
+    }
+    if (filters.brand) {
+      result = result.filter(p => p.brand === filters.brand);
+    }
+    if (filters.shop_id) {
+      result = result.filter(p => p.shop_id === filters.shop_id);
+    }
     
     // Фильтрация по поиску
     if (searchTerm) {
@@ -98,7 +123,12 @@ function AppContent() {
     setFilteredProducts(result);
   }, [filters, searchTerm, products]);
 
-  
+  const handleFilterChange = (newFilters) => {
+    setFilters(prev => ({
+      ...prev,
+      ...newFilters
+    }));
+  };
 
   // (алгоритм Фишера-Йетса)
   const shuffleArray = (array) => {
@@ -108,10 +138,6 @@ function AppContent() {
       [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
     }
     return newArray;
-  };
-
-  const handleFilterChange = (newFilters) => {
-    setFilters(newFilters);
   };
 
   const handleSearch = (term) => {setSearchTerm(term);};
@@ -130,7 +156,11 @@ function AppContent() {
       const data = await response.json();
       if (data.success) {
         setIsLoggedIn(true);
-        setCurrentUser({ username, role: data.user.role });
+        setCurrentUser({ 
+          id: data.user.id, // Добавляем id пользователя
+          username, 
+          role: data.user.role 
+        });
         setUserRole(data.user.role); // Устанавливаем роль пользователя
         setIsPopupOpen(false);
       } else {
@@ -165,6 +195,14 @@ function AppContent() {
     localStorage.removeItem('favorites');
   };
 
+  const handleOpenAdminPanel = () => {
+    setShowAdminPanel(true);
+  };
+
+  const handleCloseAdminPanel = () => {
+    setShowAdminPanel(false);
+  };
+
   // Добавим функции для работы с избранным
   const toggleFavorite = (productId) => {
     setFavorites(prev => {
@@ -188,6 +226,7 @@ function AppContent() {
         isLoggedIn={isLoggedIn}
         userRole={userRole}
         onShowFavorites={() => setShowFavorites(true)}
+        onOpenAdminPanel={handleOpenAdminPanel}
       />
       <div className="main-content">
         <Routes>
@@ -208,6 +247,8 @@ function AppContent() {
                 loading={loading}
                 error={error}
                 currentUser={currentUser}
+                favorites={favorites}
+                toggleFavorite={toggleFavorite}  // Добавляем эту строку
               />
             } 
           />
@@ -219,6 +260,7 @@ function AppContent() {
           onClose={() => setShowFavorites(false)}
           favorites={favorites}
           products={products}
+          toggleFavorite={toggleFavorite}  // Важно передать эту функцию
         />
       )}
       {isPopupOpen && (
@@ -229,6 +271,12 @@ function AppContent() {
           onRegister={() => handleRegister()}
         />
       )}
+      {showAdminPanel && (
+          <AdminPanel
+            onClose={handleCloseAdminPanel}
+            currentUser={currentUser}
+          />
+        )}
     </div>
   );
 }

@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import './FilterSidebar.css';
 
-const FilterSidebar = ({ onFilterChange, initialPrice = 10000000 }) => {
-  const [minPrice, setMinPrice] = useState(0);
-  const [maxPrice, setMaxPrice] = useState(100000);
+const FilterSidebar = ({ onFilterChange, initialPrice = 200000 }) => {
+  const [maxPrice, setMaxPrice] = useState(initialPrice); // Теперь это состояние
   const [priceRange, setPriceRange] = useState(initialPrice);
   const [material, setMaterial] = useState('');
   const [color, setColor] = useState('');
@@ -24,6 +23,16 @@ const FilterSidebar = ({ onFilterChange, initialPrice = 10000000 }) => {
     fetch('/api/products')
       .then(res => res.json())
       .then(products => {
+        if (!products || !Array.isArray(products)) return;
+        
+        // Находим максимальную цену среди товаров
+        const prices = products.map(p => p.price || 0).filter(p => !isNaN(p));
+        const maxProductPrice = prices.length > 0 ? Math.max(...prices) : initialPrice;
+        
+        // Устанавливаем максимальную цену
+        const calculatedMaxPrice = Math.max(maxProductPrice, initialPrice);
+        setMaxPrice(calculatedMaxPrice);
+        setPriceRange(calculatedMaxPrice);
         // Extract unique values for each filter category
         const materials = [...new Set(products.map(p => p.material).filter(Boolean))];
         const colors = [...new Set(products.map(p => p.color).filter(Boolean))];
@@ -40,22 +49,28 @@ const FilterSidebar = ({ onFilterChange, initialPrice = 10000000 }) => {
           brand: brands,
           market: markets
         });
-      });
-  }, []);
-  
-  const handlePriceChange = (event) => {
-    const newPrice = parseInt(event.target.value, 10);
-    setPriceRange(newPrice);
-    // Немедленно применяем фильтр по цене при изменении ползунка
-    onFilterChange({
-      price: newPrice,
-      material: material || null,
-      color: color || null,
-      dimensions: size || null,
-      availability: availability === 'В наличии' ? true : availability === 'Нет в наличии' ? false : null,
-      brand: brand || null,
-      shop_id: market || null
+      })
+    .catch(error => {
+      console.error('Error fetching products:', error);
     });
+  }, [initialPrice]);
+
+  // Исправленный handlePriceChange
+  const handlePriceChange = (event) => {
+    const newPrice = parseInt(event.target.value);
+    if (!isNaN(newPrice)) {
+      setPriceRange(newPrice);
+      // Применяем фильтр сразу при изменении ползунка
+      onFilterChange({
+        price: newPrice,
+        material,
+        color,
+        dimensions: size,
+        availability: availability === 'В наличии' ? true : availability === 'Нет в наличии' ? false : null,
+        brand,
+        shop_id: market
+      });
+    }
   };
 
   const handleMaterialChange = (e) => setMaterial(e.target.value);
@@ -65,21 +80,8 @@ const FilterSidebar = ({ onFilterChange, initialPrice = 10000000 }) => {
   const handleBrandChange = (e) => setBrand(e.target.value);
   const handleMarketChange = (e) => setMarket(e.target.value);
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    
-    // Convert filter values to match database structure
-    const filters = {
-      price: priceRange,
-      material: material || null,
-      color: color || null,
-      dimensions: size || null,
-      availability: availability === 'В наличии' ? true : availability === 'Нет в наличии' ? false : null,
-      brand: brand || null,
-      shop_id: market || null
-    };
-
-    onFilterChange(filters);
+  const handleSubmit = (e) => {
+    e.preventDefault();
   };
 
   return (
@@ -93,7 +95,7 @@ const FilterSidebar = ({ onFilterChange, initialPrice = 10000000 }) => {
             id="price"
             min="0"
             max={maxPrice}
-            step="1000"
+            step="5000"
             value={priceRange}
             onChange={handlePriceChange}
             className="price-input"

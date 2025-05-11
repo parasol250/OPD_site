@@ -103,11 +103,12 @@ function serveStaticFile(res, filePath, contentType) {
 const server = http.createServer(async (req, res) => {
     const parsedUrl = url.parse(req.url, true);
     const pathname = parsedUrl.pathname;
+    const allowedMethods = ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'];
 
     // CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', allowedMethods.join(','));
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
     if (req.method === 'OPTIONS') {
@@ -139,7 +140,11 @@ const server = http.createServer(async (req, res) => {
     }
 
     try {
-        if (pathname === '/api/filters' && req.method === 'GET') {
+        if (req.method === 'OPTIONS') {
+            res.writeHead(204);
+            res.end();
+            return;
+          } else if (pathname === '/api/filters' && req.method === 'GET') {
             const result = await client.query('SELECT DISTINCT ON (name) name, display_name FROM filters');
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify(result.rows));
@@ -226,14 +231,14 @@ const server = http.createServer(async (req, res) => {
             req.on('data', chunk => { body += chunk.toString(); });
             req.on('end', async () => {
                 try {
-                    const { username, password_hash } = JSON.parse(body);
+                    const { username, password_hash, role = 'user' } = JSON.parse(body);
                     
                     if (!username || !password_hash) {
                         res.writeHead(400, { 'Content-Type': 'application/json' });
                         res.end(JSON.stringify({ success: false, error: 'Username and password are required' }));
                         return;
                     }
-
+        
                     // Проверка существования пользователя
                     const userExists = await client.query(
                         'SELECT id FROM users WHERE username = $1', 
@@ -242,26 +247,30 @@ const server = http.createServer(async (req, res) => {
                     if (userExists.rows.length > 0) {
                         return res.status(400).json({ error: 'Username already exists' });
                     }
-
+        
+                    // Явная проверка и установка роли
+                    const validRole = ['user', 'admin'].includes(role) ? role : 'user';
+                    
                     // Создание пользователя
                     const newUser = await client.query(
                         `INSERT INTO users (username, password_hash, role, created_at) 
-                        VALUES ($1, $2, 'user', NOW()) 
+                        VALUES ($1, $2, $3, NOW()) 
                         RETURNING id, username, role`,
-                        [username, password_hash]
+                        [username, password_hash, validRole] // Используем проверенную роль
                     );
-
+        
                     res.writeHead(200, { 'Content-Type': 'application/json' });
                     res.end(JSON.stringify({ 
                         success: true,
                         user: newUser.rows[0]
                     }));
                 } catch (err) {
-                    console.error('Registration error details:', err);
+                    console.error('Registration error:', err);
                     res.writeHead(500, { 'Content-Type': 'application/json' });
                     res.end(JSON.stringify({ 
+                        success: false,
                         error: 'Registration failed',
-                        details: err.message  // Добавляем детали ошибки
+                        details: err.message
                     }));
                 }
             });
@@ -350,7 +359,53 @@ const server = http.createServer(async (req, res) => {
             const result = await client.query('SELECT * FROM users');
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify(result.rows));
-        } else {
+        } else if (pathname === '/api/users' && req.method === 'GET') {
+        try {
+            const result = await client.query('SELECT * FROM users');
+            res.writeHead(200, { 
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-cache' // Отключаем кэширование для актуальных данных
+            });
+            res.end(JSON.stringify(result.rows));
+        } catch (err) {
+            console.error('Error fetching users:', err);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ 
+                success: false,
+                error: 'Database query error',
+                details: err.message
+            }));
+        }
+    } else if (pathname.startsWith('/api/users/') && req.method === 'DELETE') {
+        const userId = pathname.split('/')[3];
+        
+        try {
+          // Проверяем существование пользователя
+          const userCheck = await client.query(
+            'SELECT id FROM users WHERE id = $1',
+            [userId]
+          );
+          
+          if (userCheck.rows.length === 0) {
+            res.writeHead(404, { 'Content-Type': 'application/json' });
+            return res.end(JSON.stringify({ error: 'Пользователь не найден' }));
+          }
+      
+          // Удаляем пользователя
+          await client.query('DELETE FROM users WHERE id = $1', [userId]);
+          
+          res.writeHead(200, { 
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*' 
+          });          
+          res.end(JSON.stringify({ success: true }));
+        return;
+        } catch (err) {
+          console.error('Error deleting user:', err);
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Ошибка при удалении пользователя' }));
+        }
+      } else{
             res.writeHead(404, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ error: 'Endpoint not found' }));
         }
@@ -362,24 +417,7 @@ const server = http.createServer(async (req, res) => {
 });
 
     // // Обработка запроса пользователей
-    // if (pathname === '/api/users' && req.method === 'GET') {
-    //     try {
-    //         const result = await client.query('SELECT * FROM users');
-    //         res.writeHead(200, { 
-    //             'Content-Type': 'application/json',
-    //             'Cache-Control': 'no-cache' // Отключаем кэширование для актуальных данных
-    //         });
-    //         res.end(JSON.stringify(result.rows));
-    //     } catch (err) {
-    //         console.error('Error fetching users:', err);
-    //         res.writeHead(500, { 'Content-Type': 'application/json' });
-    //         res.end(JSON.stringify({ 
-    //             success: false,
-    //             error: 'Database query error',
-    //             details: err.message
-    //         }));
-    //     }
-    // }
+    
     // // Обработка запроса продуктов
     // else if (pathname === '/api/products' && req.method === 'GET') {
     //     try {

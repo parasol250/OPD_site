@@ -3,7 +3,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import ProductList from './ProductList';
 
-const CategoryPage = ({ products, searchTerm, loading, error }) => {
+const CategoryPage = ({ products, searchTerm, loading, error, currentUser, favorites, toggleFavorite }) => {
     const { categoryName } = useParams();
 
     if (loading) {
@@ -58,7 +58,12 @@ const CategoryPage = ({ products, searchTerm, loading, error }) => {
         <div className="category-page">
             <h2>Категория: {decodedCategoryName}</h2>
             {categoryFilteredProducts.length > 0 ? (
-                <ProductList products={categoryFilteredProducts} />
+                <ProductList
+                    products={categoryFilteredProducts}
+                    currentUser={currentUser}
+                    favorites={favorites}
+                    toggleFavorite={toggleFavorite}
+                />
             ) : (
                 <p>Нет товаров в данной категории.</p>
             )}

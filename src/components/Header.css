@@ -25,7 +25,7 @@
 
 .home-button {
   padding: 8px 16px;
-  background-color: #2E8B57;
+  background-color: rgb(0, 104, 74);
   color: white;
   text-decoration: none;
   border: none;
@@ -34,17 +34,17 @@
   font-size: 14px;
   transition: background-color 0.3s ease;
   white-space: nowrap;
-  font-weight: bold;
+  font-weight: 600;
   margin-right: 10px; /* Spacing between home button and login button */
 }
 .home-button:hover {
-  background-color: #3CB371;
+  background-color: #3e8e41;
 }
 
 .favorites-button {
-  padding: 8px 16px;
+  padding: 8px 36px;
   background-color: #ffffff;
-  color: white;
+  color: rgb(255, 0, 0);
   text-decoration: none;
   border: none;
   cursor: pointer;
@@ -56,12 +56,12 @@
   margin-right: 10px; /* Spacing between home button and login button */
   }
   .favorites-button:hover {
-    background-color: #3CB371;
+    background-color: #3e8e41;
   }
   .admin-button {
   padding: 8px 16px;
   background-color: white;
-  color: #2E8B57;
+  color: rgb(0, 104, 74);
   text-decoration: none;
   border: none;
   cursor: pointer;
@@ -69,11 +69,11 @@
   font-size: 14px;
   transition: background-color 0.3s ease;
   white-space: nowrap;
-  font-weight: bold;
+  font-weight: 600;
   margin-right: 10px; /* Spacing between home button and login button */
   }
   .admin-button:hover {
-    background-color: #3CB371;
+    background-color: #3e8e41;
   }
 
 /* Стили для поисковой строки */
@@ -102,7 +102,7 @@
 }
   
 .login-button {
-  background-color: #2E8B57; /* Зеленый цвет */
+  background-color: rgb(0, 104, 74); /* Зеленый цвет */
   color: white;
   padding: 8px 16px;
   border: none;
@@ -116,7 +116,7 @@
 }
   
 .login-button:hover {
-  background-color: #3CB371;
+  background-color: #3e8e41;
 }
 
 .user-actions {
@@ -127,25 +127,9 @@
   justify-content: flex-end;
 }
 
-.profile-button {
-  padding: 8px 16px;
-  background-color: #4169E1;
-  color: white;
-  text-decoration: none;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.3s ease;
-}
-
-.profile-button:hover {
-  background-color: #6495ED;
-}
-
 .logout-button {
   padding: 8px 16px;
-  background-color: #2E8B57;
+  background-color: rgb(0, 104, 74);
   color: white;
   border: none;
   border-radius: 4px;
@@ -155,7 +139,7 @@
 }
 
 .logout-button:hover {
-  background-color: #3CB371;
+  background-color: #3e8e41;
 }
 
 .furniture-categories {
@@ -165,7 +149,7 @@
 }
 
 .furniture-categories a {
-  background-color: #2E8B57; /* Sea Green (Хвойный цвет) */
+  background-color: rgb(0, 104, 74); /* Sea Green (Хвойный цвет) */
   border: none;
   color: white;
   padding: 10px 20px;
@@ -173,6 +157,7 @@
   text-decoration: none;
   display: inline-block;
   font-size: 14px;
+  font-weight: 600;
   margin: 4px 2px;
   cursor: pointer;
   border-radius: 5px;
@@ -180,7 +165,7 @@
 }
 
 .furniture-categories a:hover {
-  background-color: #3CB371; /* Medium Sea Green (более светлый хвойный) */
+  background-color: #3e8e41; /* Medium Sea Green (более светлый хвойный) */
 }
 
 /* Адаптивные стили */

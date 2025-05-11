@@ -44,9 +44,63 @@
   border-bottom: 1px solid #eee;
 }
 
-.favorite-item img {
-  width: 80px;
-  height: 80px;
+.favorite-image-container {
+  position: relative;
+  width: 150px;
+  height: 150px;
+}
+
+.favorite-image-container img {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  margin-right: 15px;
+  border-radius: 4px;
+}
+
+.remove-favorite {
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ff4444;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.remove-favorite:hover {
+  background: #cc0000;
+}
+
+.favorite-info {
+  flex: 1;
+}
+
+.favorite-info h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.favorite-info p {
+  margin: 5px 0;
+}
+
+.shop-link {
+  display: inline-block;
+  margin-top: 10px;
+  color: #0066cc;
+  text-decoration: none;
+}
+
+.shop-link:hover {
+  text-decoration: underline;
+}
+
+.no-favorites {
+  text-align: center;
+  padding: 20px;
+  color: #666;
 }

@@ -1,12 +1,11 @@
 // popup.js
 import { useState } from 'react';
 import './popup.css';
-import checkCredentials from './Login';
-import CryptoJS from 'crypto-js';
-
-function hashString(str) {
-  return CryptoJS.SHA256(str).toString();
-}
+import {checkCredentials,
+  hashString,
+  checkUsernameExists,
+  registerUser,
+} from './Login';
 
 function Popup({ isOpen, onClose, onLogin, onRegister }) {
   const [isLogin, setIsLogin] = useState(true);
@@ -37,7 +36,6 @@ function Popup({ isOpen, onClose, onLogin, onRegister }) {
       const isValid = await checkCredentials(username, hashedPassword);
       
       if (isValid) {
-        const userData = await checkCredentials(username, hashedPassword);
         onLogin(username);  // call login function passed from parent
         onClose();   // close the popup after successful login
       } else {
@@ -46,42 +44,6 @@ function Popup({ isOpen, onClose, onLogin, onRegister }) {
     } catch (err) {
       setError('Ошибка при проверке учетных данных');
       console.error('Login error:', err);
-    }
-  };
-
-  const checkUsernameExists = async (username) => {
-    try {
-      const response = await fetch(`http://localhost:5000/api/checkusername?username=${encodeURIComponent(username)}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return (await response.json()).exists;
-    } catch (err) {
-      console.error('Error checking username:', err);
-      throw err;
-    }
-  };
-
-  const registerUser = async (username, password_hash) => {
-    try {
-      console.log('Registering user:', username);
-      const response = await fetch('http://localhost:5000/api/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password_hash }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Ошибка регистрации');
-      }
-
-      return await response.json();
-    } catch (err) {
-      console.error('Registration API error:', err);
-      throw err;
     }
   };
 
@@ -107,7 +69,7 @@ function Popup({ isOpen, onClose, onLogin, onRegister }) {
       }
 
       const hashedPassword = hashString(password);
-      const registrationResult = await registerUser(username, hashedPassword);
+      const registrationResult = await registerUser(username, hashedPassword, 'user');
       
       if (registrationResult.success) {
         await onRegister();

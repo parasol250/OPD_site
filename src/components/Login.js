@@ -1,5 +1,4 @@
-//const bcrypt = require('bcrypt');
-//const jwt = require('jsonwebtoken');
+import CryptoJS from 'crypto-js';
 
 async function check(username, password_hash, data){ 
     // 1. Find user in "database"
@@ -18,7 +17,7 @@ async function check(username, password_hash, data){
 }
 
 
-async function checkCredentials(username, password_hash) {
+export async function checkCredentials(username, password_hash) {
     try {
         const response = await fetch('http://localhost:5000/api/users');
         
@@ -34,4 +33,47 @@ async function checkCredentials(username, password_hash) {
       }
 }
 
-export default checkCredentials;
+
+export function hashString(str) {
+  return CryptoJS.SHA256(str).toString();
+}
+
+export async function checkUsernameExists(username) {
+  try {
+    const response = await fetch(`http://localhost:5000/api/checkusername?username=${encodeURIComponent(username)}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return (await response.json()).exists;
+  } catch (err) {
+    console.error('Error checking username:', err);
+    throw err;
+  }
+}
+
+// api/auth.js
+export async function registerUser(username, passwordHash, role = 'user') {
+  try {
+    const response = await fetch('http://localhost:5000/api/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ 
+        username, 
+        password_hash: passwordHash,
+        role 
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Ошибка регистрации');
+    }
+
+    return await response.json();
+  } catch (err) {
+    console.error('Registration API error:', err);
+    throw err;
+  }
+}

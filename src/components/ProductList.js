@@ -7,6 +7,7 @@ function ProductList({ products, currentUser, favorites, toggleFavorite }) {
   console.log("Products with images:", products.map(p => ({
     id: p.id,
     name: p.name,
+    price: p.price,
     image_paths: p.image_paths,
     images: p.images,
     hasLocalImages: p.image_paths && p.image_paths.length > 0,
