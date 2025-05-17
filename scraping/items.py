@@ -15,11 +15,9 @@ class FurnitureItem(Item):
     weight = Field()
     stock_quantity = Field()
     rating = Field()
-    image_urls = scrapy.Field()  # URL изображений для загрузки
-    images = scrapy.Field()      # Информация о скачанных изображениях
-    image_paths = scrapy.Field() # Пути к сохраненным изображениям
-    # created_at = Field() # Removed. Will be handled by DB default
-    # updated_at = Field() # Removed. Will be handled by DB default
+    image_urls = scrapy.Field()  # url изображений для загрузки
+    images = scrapy.Field()      # информация о скачанных изображениях
+    image_paths = scrapy.Field() # пути к сохраненным изображениям
 
     def __repr__(self):
         return f"FurnitureItem(name={self['name']}, price={self['price']}, original_url={self['original_url']})"

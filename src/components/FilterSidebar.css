@@ -1,45 +1,43 @@
-/* FilterSidebar.css */
 .filter-sidebar {
-  width: 100%; /* Занимает всю доступную ширину */
+  width: 100%;
   padding: 10px;
   box-sizing: border-box;
 }
   
-.filter-sidebar h2 { /* Скрываем заголовок "Фильтры" */
+.filter-sidebar h2 {
   display: none;
 }
 
 .filter-sidebar form {
-  display: flex;          /* Располагаем фильтры в строку */
-  flex-wrap: wrap;       /* Переносим фильтры на новую строку, если не помещаются */
+  display: flex;
+  flex-wrap: wrap;
   justify-content: center;
-  align-items: center; /* Center items vertically */
+  align-items: center;
 }
 
 .filter-sidebar form > div {
-  margin: 5px;            /* Отступы между фильтрами */
+  margin: 5px;
 }
 
 .filter-sidebar label {
-  display: block;        /* Размещаем лейбл над селектом */
+  display: block; 
   margin-bottom: 3px;
   font-size: 0.8em;
-  text-align: center;   /* Центрируем текст лейбла */
+  text-align: center;
 }
 
 .filter-sidebar select {
-  padding: 5px;           /* Внутренние отступы в селекте */
+  padding: 5px;
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 0.9em;
-  width: 120px;           /* Fixed width for each select */
+  width: 120px;
 }
 
 .filter-sidebar button {
-  display: none;         /* Скрываем кнопку "Применить" */
+  display: none;
 }
 
-/* ПОЛЗУУУУУУУУУУУУУУУУУНООООООООООК ЦЕНЫ*/
 .price-range-container {
   display: flex;
   flex-direction: column;
@@ -55,7 +53,7 @@
 
 .price-input {
   width: 100%;
-  -webkit-appearance: none; /* Сброс стилей браузера по умолчанию */
+  -webkit-appearance: none;
   height: 8px;
   border-radius: 4px;
   background: #d3d3d3;
@@ -92,7 +90,6 @@
   margin-top: 0.5rem;
   color: #555;
 }
-
 
 @media (max-width: 600px) {
   .filter-sidebar form {

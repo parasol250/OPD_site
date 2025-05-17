@@ -25,7 +25,6 @@ async function connectToDatabase() {
     }
 }
 
-// Функция для добавления фильтра, если его еще нет
 async function addFilterIfNotExists(name, displayName, value, productId) {
     const res = await client.query(
         'SELECT * FROM filters WHERE name=$1 AND value=$2 AND product_id=$3',
@@ -39,36 +38,12 @@ async function addFilterIfNotExists(name, displayName, value, productId) {
     }
 }
 
-
-
-async function processProductFilters(productId, productData) {
-    // productData — объект с данными о продукте, например:
-    // { material: 'дерево', color: 'красный', size: 'средний', availability: 'в наличии', brand: 'Gucci', market: 'OZON' }
-
-    const filterMappings = [
-        { key: 'material', displayName: 'Материал' },
-        { key: 'color', displayName: 'Цвет' },
-        { key: 'size', displayName: 'Размер' },
-        { key: 'availability', displayName: 'Наличие' },
-        { key: 'brand', displayName: 'Бренд' },
-        { key: 'market', displayName: 'Магазин' },
-    ];
-
-    for (const { key, displayName } of filterMappings) {
-        if (productData[key]) {
-            await addFilterIfNotExists(key, displayName, productData[key], productId);
-        }
-    }
-}
-
 async function authenticateUser(username) {
     try {
-        console.log('Executing query for username:', username);
         const result = await client.query(
             'SELECT id, username, role FROM users WHERE username = $1', 
             [username]
-        );
-        
+        );       
         console.log('Query result:', result.rows);
         return result.rows[0];
     } catch (err) {
@@ -94,7 +69,7 @@ function serveStaticFile(res, filePath, contentType) {
 
         res.writeHead(200, { 
             'Content-Type': contentType,
-            'Cache-Control': 'public, max-age=86400' // Кэширование на 1 день
+            'Cache-Control': 'public, max-age=86400'
         });
         res.end(data);
     });
@@ -105,7 +80,6 @@ const server = http.createServer(async (req, res) => {
     const pathname = parsedUrl.pathname;
     const allowedMethods = ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'];
 
-    // CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Access-Control-Allow-Methods', allowedMethods.join(','));
@@ -117,9 +91,8 @@ const server = http.createServer(async (req, res) => {
         return;
     }
 
-    // Обработка статических файлов
     if (pathname.startsWith('/images/')) {
-        const filePath = pathname.substring(1); // Убираем первый слеш
+        const filePath = pathname.substring(1);
         const extname = path.extname(filePath).toLowerCase();
         const mimeTypes = {
             '.jpg': 'image/jpeg',
@@ -157,19 +130,16 @@ const server = http.createServer(async (req, res) => {
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ success: true }));
             });
-        }// Внутри server.createServer, в блок try/catch, после других маршрутов:
+        }
         else if (pathname === '/api/auth' && req.method === 'POST') {
             let body = '';
             req.on('data', chunk => { body += chunk.toString(); });
             req.on('end', async () => {
                 try {
-                    console.log('Received auth request with body:', body); // Логируем входящие данные
                     const { username } = JSON.parse(body);
                     if (!username) {
                         throw new Error('Username parameter is required');
-                    }
-        
-                    console.log('Searching user with username:', username);
+                    }     
                     const user = await authenticateUser(username);
                     
                     if (user) {
@@ -179,7 +149,7 @@ const server = http.createServer(async (req, res) => {
                             user: {
                                 id: user.id,
                                 username: user.username,
-                                role: user.role // Передаем роль пользователя
+                                role: user.role
                             }
                         }));
                     } else {
@@ -201,7 +171,7 @@ const server = http.createServer(async (req, res) => {
         }
 
         else if ((pathname === '/api/check-username' || pathname === '/api/checkusername') && req.method === 'GET') {
-            console.log('Check username endpoint accessed'); // Логирование для отладки
+            console.log('Check username endpoint accessed');
             console.log(`Received request: ${req.method} ${pathname}`);
             console.log('Check username endpoint hit');
             const username = parsedUrl.query.username;
@@ -239,7 +209,6 @@ const server = http.createServer(async (req, res) => {
                         return;
                     }
         
-                    // Проверка существования пользователя
                     const userExists = await client.query(
                         'SELECT id FROM users WHERE username = $1', 
                         [username]
@@ -248,15 +217,13 @@ const server = http.createServer(async (req, res) => {
                         return res.status(400).json({ error: 'Username already exists' });
                     }
         
-                    // Явная проверка и установка роли
                     const validRole = ['user', 'admin'].includes(role) ? role : 'user';
                     
-                    // Создание пользователя
                     const newUser = await client.query(
                         `INSERT INTO users (username, password_hash, role, created_at) 
                         VALUES ($1, $2, $3, NOW()) 
                         RETURNING id, username, role`,
-                        [username, password_hash, validRole] // Используем проверенную роль
+                        [username, password_hash, validRole]
                     );
         
                     res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -327,7 +294,7 @@ const server = http.createServer(async (req, res) => {
                         color,
                         dimensions,
                         weight,
-                        stock_quantity as "stockQuantity",
+                        stock_quantity,
                         rating,
                         created_at,
                         updated_at,
@@ -364,7 +331,7 @@ const server = http.createServer(async (req, res) => {
             const result = await client.query('SELECT * FROM users');
             res.writeHead(200, { 
                 'Content-Type': 'application/json',
-                'Cache-Control': 'no-cache' // Отключаем кэширование для актуальных данных
+                'Cache-Control': 'no-cache'
             });
             res.end(JSON.stringify(result.rows));
         } catch (err) {
@@ -380,7 +347,6 @@ const server = http.createServer(async (req, res) => {
         const userId = pathname.split('/')[3];
         
         try {
-          // Проверяем существование пользователя
           const userCheck = await client.query(
             'SELECT id FROM users WHERE id = $1',
             [userId]
@@ -391,7 +357,6 @@ const server = http.createServer(async (req, res) => {
             return res.end(JSON.stringify({ error: 'Пользователь не найден' }));
           }
       
-          // Удаляем пользователя
           await client.query('DELETE FROM users WHERE id = $1', [userId]);
           
           res.writeHead(200, { 
@@ -416,29 +381,6 @@ const server = http.createServer(async (req, res) => {
     }
 });
 
-    // // Обработка запроса пользователей
-    
-    // // Обработка запроса продуктов
-    // else if (pathname === '/api/products' && req.method === 'GET') {
-    //     try {
-    //         const result = await client.query('SELECT * FROM products');
-    //         res.writeHead(200, { 'Content-Type': 'application/json' });
-    //         res.end(JSON.stringify(result.rows));
-    //     } catch (err) {
-    //         console.error('Error fetching products:', err);
-    //         res.writeHead(500, { 'Content-Type': 'text/plain' });
-    //         res.end('Server error');
-    //     }
-    // }
-    // else {
-    //     res.writeHead(404, { 'Content-Type': 'application/json' });
-    //     res.end(JSON.stringify({ 
-    //         success: false,
-    //         error: 'Endpoint not found'
-    //     }));
-    // }
-// });
-
 async function startServer() {
     try {
         await connectToDatabase();
@@ -457,7 +399,7 @@ process.on('SIGTERM', shutdown);
 process.on('SIGINT', shutdown);
 
 async function shutdown() {
-    console.log('Shutting down gracefully...');
+    console.log('Shutting down...');
     try {
         await client.end();
         server.close(() => {

@@ -1,39 +1,33 @@
-/* ProductList.css */
-
 .product-list {
-    display: grid;
-    /* Изменено: фиксированное количество столбцов */
-    grid-template-columns: repeat(4, 1fr); /* 4 колонки одинаковой ширины */
-    gap: 30px;
-    list-style: none;
-    padding: 0;
-    /* Изменено: фиксированная максимальная ширина контейнера */
-    max-width: 1220px; /* Ширина контейнера = 4 колонки * 250px + 3 зазора * 20px */
-    margin: 0 auto; /* Центрирование контейнера */
-  }
-  
-  .product-item {
-    border: 1px solid #ddd;
-    padding: 10px;
-    text-align: center;
-    /* Добавлено: Фиксированная высота */
-    height: 350px; /* Пример фиксированной высоты */
-    box-sizing: border-box; /* Важно для учета padding и border */
-  }
-  
-  .product-item img {
-    max-width: 100%;
-    height: auto;
-    margin-bottom: 10px;
-  }
-  
-  .product-item h3 {
-    font-size: 1.2em;
-    margin-bottom: 5px;
-  }
-  
-  .product-item p {
-    font-size: 1em;
-    margin-bottom: 5px;
-  }
-  
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30px;
+  list-style: none;
+  padding: 0;
+  max-width: 1220px;
+  margin: 0 auto;
+}
+
+.product-item {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+  height: 350px;
+  box-sizing: border-box;
+}
+
+.product-item img {
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 10px;
+}
+
+.product-item h3 {
+  font-size: 1.2em;
+  margin-bottom: 5px;
+}
+
+.product-item p {
+  font-size: 1em;
+  margin-bottom: 5px;
+}

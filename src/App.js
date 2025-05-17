@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+//import React from 'react';
+import { useState, useEffect } from 'react';
 import Header from './components/Header';
 import ProductList from './components/ProductList';
 import Popup from './components/popup';
@@ -8,18 +9,20 @@ import CategoryPage from './components/CategoryPage';
 import FavoritesModal from './components/FavouritesModal';
 import AdminPanel from './components/AdminPanel'; 
 
-
 function AppContent() {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
-  const [filters, setFilters] = useState({
-    price: null,
-    material: null,
-    color: null,
-    dimensions: null,
-    availability: null,
-    brand: null,
-    shop_id: null
+  const [filters, setFilters] = useState(() => {
+    const savedFilters = localStorage.getItem('filters');
+    return savedFilters ? JSON.parse(savedFilters) : {
+      price: null,
+      material: null,
+      color: null,
+      dimensions: null,
+      availability: null,
+      brand: null,
+      shop_id: null
+    };
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -53,17 +56,15 @@ function AppContent() {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const data = await response.json();
-        // Перемешиваем продукты для случайного порядка
-        console.log(filters); //////// USELESSSSSS
-        setProducts(shuffleArray(data)); // Исправлено: сохраняем shuffledProducts
-        setFilteredProducts(shuffleArray(data)); // Инициализируем filteredProducts
-        // Перенаправляем на главную только если мы уже не на категории
+        setProducts(shuffleArray(data));
+        setFilteredProducts(shuffleArray(data));
+
         if (!window.location.pathname.includes('/category')) {
           navigate('/', { replace: true });
         }
       } catch (error) {
         setError(error);
-        console.error("Error fetching data:", error); // <---- Добавили console.error
+        console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
       }
@@ -83,11 +84,8 @@ function AppContent() {
     }
   }, [userRole]);
 
-  // Применение фильтров к данным
   useEffect(() => {
     let result = [...products];
-    
-    /// Фильтрация по цене
     if (filters.price !== null) {
       result = result.filter(p => {
         const productPrice = p.price || 0;
@@ -113,7 +111,6 @@ function AppContent() {
       result = result.filter(p => p.shop_id === filters.shop_id);
     }
     
-    // Фильтрация по поиску
     if (searchTerm) {
       result = result.filter(p => 
         p.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -123,6 +120,10 @@ function AppContent() {
     setFilteredProducts(result);
   }, [filters, searchTerm, products]);
 
+  useEffect(() => {
+    localStorage.setItem('filters', JSON.stringify(filters));
+  }, [filters]);
+
   const handleFilterChange = (newFilters) => {
     setFilters(prev => ({
       ...prev,
@@ -130,7 +131,7 @@ function AppContent() {
     }));
   };
 
-  // (алгоритм Фишера-Йетса)
+  // алгоритм Фишера-Йетса
   const shuffleArray = (array) => {
     const newArray = [...array];
     for (let i = newArray.length - 1; i > 0; i--) {
@@ -146,7 +147,6 @@ function AppContent() {
 
   const handleLogin = async (username, role) => {
     try {
-      //console.log('Attempting login with:', username);
       const response = await fetch('http://localhost:5000/api/auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -157,11 +157,11 @@ function AppContent() {
       if (data.success) {
         setIsLoggedIn(true);
         setCurrentUser({ 
-          id: data.user.id, // Добавляем id пользователя
+          id: data.user.id,
           username, 
           role: data.user.role 
         });
-        setUserRole(data.user.role); // Устанавливаем роль пользователя
+        setUserRole(data.user.role);
         setIsPopupOpen(false);
       } else {
         alert(data.message || 'Authentication failed');
@@ -174,12 +174,12 @@ function AppContent() {
 
   const handleRegister = async (username) => {
     try {
-    setIsLoggedIn(true);
-    setCurrentUser({ username, role: 'user' });
-    setUserRole('user');
-    setIsPopupOpen(false);
-    localStorage.setItem('isLoggedIn', 'true');
-    console.log(`User ${username} registered successfully`);
+      setIsLoggedIn(true);
+      setCurrentUser({ username, role: 'user' });
+      setUserRole('user');
+      setIsPopupOpen(false);
+      localStorage.setItem('isLoggedIn', 'true');
+      console.log(`User ${username} registered successfully`);
     } catch (error) {
       console.error('Registration error:', error);
     }
@@ -187,12 +187,21 @@ function AppContent() {
   
   const handleLogout = () => {
     setIsLoggedIn(false);
-    setCurrentUser(null); // Важно сбросить currentUser
+    setCurrentUser(null);
     setUserRole(null);
-    setFavorites([]); // Очищаем избранное при выходе
+    setFavorites([]);
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('userRole');
     localStorage.removeItem('favorites');
+    setFilters({
+      price: null,
+      material: null,
+      color: null,
+      dimensions: null,
+      availability: null,
+      brand: null,
+      shop_id: null
+    });
   };
 
   const handleOpenAdminPanel = () => {
@@ -203,7 +212,6 @@ function AppContent() {
     setShowAdminPanel(false);
   };
 
-  // Добавим функции для работы с избранным
   const toggleFavorite = (productId) => {
     setFavorites(prev => {
       const newFavorites = prev.includes(productId)
@@ -227,6 +235,7 @@ function AppContent() {
         userRole={userRole}
         onShowFavorites={() => setShowFavorites(true)}
         onOpenAdminPanel={handleOpenAdminPanel}
+        filters={filters}
       />
       <div className="main-content">
         <Routes>
@@ -242,13 +251,14 @@ function AppContent() {
             path="/category/:categoryName" 
             element={
               <CategoryPage 
-                products={products} 
+                products={filteredProducts} 
                 searchTerm={searchTerm} 
                 loading={loading}
                 error={error}
                 currentUser={currentUser}
                 favorites={favorites}
-                toggleFavorite={toggleFavorite}  // Добавляем эту строку
+                toggleFavorite={toggleFavorite}
+                filters={filters}
               />
             } 
           />
@@ -260,7 +270,7 @@ function AppContent() {
           onClose={() => setShowFavorites(false)}
           favorites={favorites}
           products={products}
-          toggleFavorite={toggleFavorite}  // Важно передать эту функцию
+          toggleFavorite={toggleFavorite}
         />
       )}
       {isPopupOpen && (

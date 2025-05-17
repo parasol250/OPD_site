@@ -1,13 +1,12 @@
+//import React from 'react';
 import CryptoJS from 'crypto-js';
 
 async function check(username, password_hash, data){ 
-    // 1. Find user in "database"
     const user = data.find((u) => u.username === username);
     if (!user) {
        console.log('User not found');
        return false;
     }
-    // 2. Compare hashed password
     const isPasswordValid = (password_hash === user.password_hash);
     if (!isPasswordValid) {
         console.log('Invalid password');
@@ -15,7 +14,6 @@ async function check(username, password_hash, data){
     }
     return (true);
 }
-
 
 export async function checkCredentials(username, password_hash) {
     try {
@@ -32,7 +30,6 @@ export async function checkCredentials(username, password_hash) {
         console.error('Failed to fetch users:', error);
       }
 }
-
 
 export function hashString(str) {
   return CryptoJS.SHA256(str).toString();
@@ -51,7 +48,6 @@ export async function checkUsernameExists(username) {
   }
 }
 
-// api/auth.js
 export async function registerUser(username, passwordHash, role = 'user') {
   try {
     const response = await fetch('http://localhost:5000/api/register', {

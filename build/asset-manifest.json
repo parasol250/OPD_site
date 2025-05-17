@@ -1,14 +1,13 @@
 {
   "files": {
     "main.css": "/OPD_site/static/css/main.d67ee3ae.css",
-    "main.js": "/OPD_site/static/js/main.ce91c9fb.js",
-    "static/media/default-product-image.jpg": "/OPD_site/static/media/default-product-image.0c624c693cd0397becdc.jpg",
+    "main.js": "/OPD_site/static/js/main.753b8221.js",
     "index.html": "/OPD_site/index.html",
     "main.d67ee3ae.css.map": "/OPD_site/static/css/main.d67ee3ae.css.map",
-    "main.ce91c9fb.js.map": "/OPD_site/static/js/main.ce91c9fb.js.map"
+    "main.753b8221.js.map": "/OPD_site/static/js/main.753b8221.js.map"
   },
   "entrypoints": [
     "static/css/main.d67ee3ae.css",
-    "static/js/main.ce91c9fb.js"
+    "static/js/main.753b8221.js"
   ]
 }

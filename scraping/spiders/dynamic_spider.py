@@ -16,13 +16,11 @@ class DynamicSpider(scrapy.Spider):
         self.shops = {}
         self.categories = {}
         self.website_data = {}
-        self.open_spider(self)  # Явно открываем соединение при инициализации
-
+        self.open_spider(self)
 
     def open_spider(self, spider):
-        """Открытие соединения с БД при запуске паука"""
         try:
-            self.logger.info("Попытка подключения к БД...")
+            self.logger.info("Подключение к БД...")
             self.conn = psycopg2.connect(
                 host=self.db_host,
                 database=self.db_name,
@@ -30,7 +28,7 @@ class DynamicSpider(scrapy.Spider):
                 password=self.db_password
             )
             self.cursor = self.conn.cursor()
-            self.logger.info("Успешное подключение к БД")  # Логируем успех
+            self.logger.info("Успешное подключение к БД")
             self.logger.info("Загрузка магазинов и категорий...")
             self.load_shops_and_categories()
             self.logger.info("Загрузка данных сайтов...")
@@ -41,15 +39,12 @@ class DynamicSpider(scrapy.Spider):
             raise CloseSpider("Не удалось подключиться к БД")
 
     def close_spider(self, spider):
-        """Закрываем соединение с БД при завершении"""
         if hasattr(self, 'conn') and self.conn:
             self.cursor.close()
             self.conn.close()
 
     def start_requests(self):
-        """Генерация начальных запросов"""
         if not hasattr(self, 'website_data') or not self.website_data:
-            # Попробуем переподключиться, если данные не загружены
             try:
                 self.open_spider(self)
             except Exception as e:
@@ -146,14 +141,11 @@ class DynamicSpider(scrapy.Spider):
             raise CloseSpider("No shops found in database!")
         self.shops = {name: id for id, name in shops_data}
 
-        #Load categories -  использование  'category' вместо 'category_name'  для поиска в словаре
         self.cursor.execute("SELECT id, name FROM categories")
         categories_data = self.cursor.fetchall()
         self.categories = {name.lower(): id for id, name in categories_data}
 
-
     def load_website_data(self):
-        # Загружаем конфигурации сайтов, включая селекторы категорий
         self.cursor.execute("""
             SELECT
                 sites.site,
@@ -214,35 +206,31 @@ class DynamicSpider(scrapy.Spider):
         self.logger.info(f"Обработка категорий для {response.url}")
         original_url = response.meta.get('original_url')
         category_selector = response.meta.get('category_selector')
-        category_type = response.meta.get('category') # Get the type of category
+        category_type = response.meta.get('category')
 
         self.logger.debug(f"Селектор категории: {category_selector}")
 
-        # Extract category links using the specific selector
         if category_selector:
             category_links = response.css(category_selector).getall()
             self.logger.info(f"Найдено {len(category_links)} ссылок на категории")
 
-            # You can add a check here to see if the category links are absolute or relative
             for category_link in category_links:
                 absolute_link = response.urljoin(category_link)
                 self.logger.debug(f"Переход по ссылке категории: {absolute_link}")
                 yield scrapy.Request(absolute_link, self.parse_products,
-                                      meta={'original_url': original_url, 'category': category_type}) # Pass the category type to parse_products
+                                      meta={'original_url': original_url, 'category': category_type})
         else:
             self.logger.warning(f"No category selector found for {response.url} for category {category_type}")
 
     def parse_products(self, response):
-        # Извлекаем данные о сайте из базы данных
         original_url = response.meta.get('original_url')
-        category_type = response.meta.get('category') # Get the category
+        category_type = response.meta.get('category')
         if not self.website_data or original_url not in self.website_data:
             self.logger.error(f"Website data not loaded for {response.url}.")
             return
 
         selectors = self.website_data[original_url]
 
-        # Извлекаем ссылки на товары, используя селектор товара из базы данных
         product_link_selector = selectors.get('product_link_selector')
         if product_link_selector:
             product_links = response.css(product_link_selector).getall()
@@ -252,33 +240,31 @@ class DynamicSpider(scrapy.Spider):
 
         self.logger.info(f"Found {len(product_links)} product links")
 
-        # Следуем по каждой ссылке на товар и парсим данные о товаре
         for link in product_links:
-            absolute_link = response.urljoin(link)  # Преобразуем относительные URL
+            absolute_link = response.urljoin(link)
             yield response.follow(absolute_link, self.parse_product,
-                                  meta={'original_url': original_url, 'category': category_type}) # Pass the category type to parse_product
+                                  meta={'original_url': original_url, 'category': category_type})
 
-        # Пагинация (пример - настройте на основе фактического сайта)
+        # пагинация (необходима настройка)
         next_page = response.css('a.pagination__next::attr(href)').get()
         if next_page:
             absolute_next_page = response.urljoin(next_page)
             yield response.follow(absolute_next_page, self.parse_products,
-                                  meta={'original_url': original_url, 'category': category_type}) # Pass the category type to next page
+                                  meta={'original_url': original_url, 'category': category_type})
 
     def parse_product(self, response):
         original_url = response.meta.get('original_url')
-        category_type = response.meta.get('category') # Get the category
+        category_type = response.meta.get('category')
 
         if not self.website_data or original_url not in self.website_data:
             self.logger.error(f"Website data not loaded for {response.url}.")
             return
 
-        selectors = self.website_data[original_url] #Assign Values
+        selectors = self.website_data[original_url]
     
         item = FurnitureItem()
 
         item["name"] = response.css(selectors.get('name_selector')).get(default='').strip() if selectors.get('name_selector') else None
-        # Попробуем альтернативные селекторы, если основной не сработал
         alt_selectors = [
             'h1.product-title::text',
             'h1.title::text',
@@ -293,30 +279,26 @@ class DynamicSpider(scrapy.Spider):
         item["price"] = self.extract_price(response, selectors.get('price_selector')) if selectors.get('price_selector') else None
         item["original_url"] = response.url
 
-        # Shop ID: must exist.
         shop_name = selectors.get('shop_name')
 
         if shop_name and shop_name in self.shops:
             item["shop_id"] = self.shops[shop_name]
         else:
             self.logger.error(f"Shop '{shop_name}' not found. Skipping item.")
-            return  # Skip to the next item
+            return
 
-       # Используем категорию из meta, если она есть
-        if category_type: # check if category is present
-            category_name = category_type  # Use the passed-in category type directly
+        if category_type:
+            category_name = category_type
             if category_name.lower() in self.categories:
                 item["category_id"] = self.categories[category_name.lower()]
         
-        # Дополнительная проверка по селектору, если категория еще не определена
         if not item.get("category_id") and selectors.get('category_selector'):
             category_name = response.css(selectors.get('category_selector')).get(default='').strip()
             if category_name.lower() in self.categories:
                 item["category_id"] = self.categories[category_name.lower()]
         
-        # Если категория все еще не определена, используем категорию по умолчанию
         if not item.get("category_id"):
-            item["category_id"] = 1  # ID категории по умолчанию
+            item["category_id"] = 1
 
         item["brand"] = self.extract_brand(response, selectors.get('brand_selector')) if selectors.get('brand_selector') else None
         item["material"] = self.extract_material(response, selectors.get('material_selector')) if selectors.get('material_selector') else None
@@ -326,12 +308,12 @@ class DynamicSpider(scrapy.Spider):
         item["stock_quantity"] = self.extract_stock_quantity(response, selectors.get('stock_quantity_selector')) if selectors.get('stock_quantity_selector') else None
         item["rating"] = self.extract_rating(response, selectors.get('rating_selector')) if selectors.get('rating_selector') else None
         
-        # Извлечение только главного изображения
+        # extract главного изображения
         image_selector = selectors.get('image_selector')
         if image_selector:
             image_url = response.css(image_selector).get()
             if image_url:
-                absolute_image_url = response.urljoin(image_url) # Преобразуем относительный URL
+                absolute_image_url = response.urljoin(image_url) # преобразование относительного URL
                 item['image_urls'] = [absolute_image_url]
             else:
                 item['image_urls'] = []
@@ -343,7 +325,6 @@ class DynamicSpider(scrapy.Spider):
         yield item
 
     def map_category_name(self, url_category):
-        """Сопоставляет часть URL с названием категории в БД"""
         mapping = {
             'kukhni': 'Кухни',
             'divany': 'Диваны и кресла',

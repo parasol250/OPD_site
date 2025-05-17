@@ -1,4 +1,4 @@
-// popup.js
+//import React from 'react';
 import { useState } from 'react';
 import './popup.css';
 import {checkCredentials,
@@ -10,7 +10,7 @@ import {checkCredentials,
 function Popup({ isOpen, onClose, onLogin, onRegister }) {
   const [isLogin, setIsLogin] = useState(true);
   const [username, setUsername] = useState('');
-  const [password, setPassword] = useState(''); // Keep raw password in state
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
@@ -31,13 +31,12 @@ function Popup({ isOpen, onClose, onLogin, onRegister }) {
     }
 
     try {
-      // Hash the password before sending
       const hashedPassword = hashString(password);
       const isValid = await checkCredentials(username, hashedPassword);
       
       if (isValid) {
-        onLogin(username);  // call login function passed from parent
-        onClose();   // close the popup after successful login
+        onLogin(username);
+        onClose();
       } else {
         setError('Неверные учетные данные');
       }
@@ -153,7 +152,5 @@ function Popup({ isOpen, onClose, onLogin, onRegister }) {
     </div>
   );
 }
-
-console.log(hashString('Cheese'))
 
 export default Popup;

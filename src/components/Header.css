@@ -10,7 +10,7 @@
   
 .header-content {
     display: flex;
-    align-items: center;            /*  Центрируем элементы по вертикали */
+    align-items: center;
     flex-grow: 1;
     gap: 15px;
     flex-wrap: wrap;
@@ -20,7 +20,7 @@
     border: 1px solid #ccc;
     border-radius: 4px;
     width: 1000px;
-    margin-left: auto;    /*  Прижимаем к правому краю */
+    margin-left: auto;
 }
 
 .home-button {
@@ -35,7 +35,7 @@
   transition: background-color 0.3s ease;
   white-space: nowrap;
   font-weight: 600;
-  margin-right: 10px; /* Spacing between home button and login button */
+  margin-right: 10px;
 }
 .home-button:hover {
   background-color: #3e8e41;
@@ -53,12 +53,14 @@
   transition: background-color 0.3s ease;
   white-space: nowrap;
   font-weight: bold;
-  margin-right: 10px; /* Spacing between home button and login button */
-  }
-  .favorites-button:hover {
-    background-color: #3e8e41;
-  }
-  .admin-button {
+  margin-right: 10px;
+}
+
+.favorites-button:hover {
+  background-color: #3e8e41;
+}
+
+.admin-button {
   padding: 8px 16px;
   background-color: white;
   color: rgb(0, 104, 74);
@@ -70,13 +72,14 @@
   transition: background-color 0.3s ease;
   white-space: nowrap;
   font-weight: 600;
-  margin-right: 10px; /* Spacing between home button and login button */
-  }
-  .admin-button:hover {
-    background-color: #3e8e41;
-  }
+  margin-right: 10px;
+}
 
-/* Стили для поисковой строки */
+.admin-button:hover {
+  background-color: #3e8e41;
+}
+
+
 .search-container {
   flex-grow: 1;
   min-width: 200px;
@@ -96,13 +99,14 @@
   font-size: 16px;
   transition: border-color 0.3s ease;
 }
+
 .search-bar input:focus {
   border-color: #2E8B57;
   outline: none;
 }
   
 .login-button {
-  background-color: rgb(0, 104, 74); /* Зеленый цвет */
+  background-color: rgb(0, 104, 74);
   color: white;
   padding: 8px 16px;
   border: none;
@@ -149,7 +153,7 @@
 }
 
 .furniture-categories a {
-  background-color: rgb(0, 104, 74); /* Sea Green (Хвойный цвет) */
+  background-color: rgb(0, 104, 74);
   border: none;
   color: white;
   padding: 10px 20px;
@@ -161,14 +165,13 @@
   margin: 4px 2px;
   cursor: pointer;
   border-radius: 5px;
-  transition: background-color 0.3s ease; /* плавное изменение цвета фона */
+  transition: background-color 0.3s ease;
 }
 
 .furniture-categories a:hover {
-  background-color: #3e8e41; /* Medium Sea Green (более светлый хвойный) */
+  background-color: #3e8e41;
 }
 
-/* Адаптивные стили */
 @media (max-width: 768px) {
   .header {
     flex-direction: column;

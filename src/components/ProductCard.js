@@ -1,13 +1,13 @@
+//import React from 'react';
 import './ProductCard.css';
 import defaultImage from './default-product-image.jpg';
 
 const ProductCard = ({ product, currentUser, isFavorite, toggleFavorite }) => {
 
-  // Проверяем наличие product и его свойств
   if (!product) {
     return <div className="product-card error">Ошибка: данные товара не загружены</div>;
   }
-  // Construct image path
+
   const getImageSource = () => {
     if (product.image_paths) {
       const pathsArray = Array.isArray(product.image_paths) 
@@ -30,27 +30,22 @@ const ProductCard = ({ product, currentUser, isFavorite, toggleFavorite }) => {
     return defaultImage;
   };
 
-  // Format price
   const formattedPrice = product.price ? 
   `${product.price.toLocaleString('ru-RU')} руб.` : 
   'Цена не указана';
 
   const handleShopClick = (url) => {
-    // Проверяем что url существует и является строкой
     if (!url || typeof url !== 'string') {
       console.error('Invalid URL:', url);
       return;
     }
 
     try {
-      // Ensure URL is properly encoded
       const encodedUrl = encodeURI(url.trim());
-      // Verify URL structure
       const validatedUrl = new URL(encodedUrl);
       window.open(validatedUrl.href, '_blank', 'noopener noreferrer');
     } catch (e) {
       console.error('Invalid URL format:', url, e);
-      // Optional: Show user feedback
       alert('Невозможно открыть ссылку на магазин');
     }
   };
@@ -85,7 +80,6 @@ const ProductCard = ({ product, currentUser, isFavorite, toggleFavorite }) => {
       </div>
       <div className="product-info">
         <h3>{product.name}</h3>
-        {/* {product.description && <p className="description">{product.description}</p>} */}
         <p className="price">{formattedPrice}</p>
         {product.shop_name && <p className="store">Магазин: {product.shop_name}</p>}
         {product.original_url ? (

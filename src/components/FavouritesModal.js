@@ -1,8 +1,6 @@
-import React from 'react';
+//import React from 'react';
 import './FavouritesModal.css';
 import defaultImage from './default-product-image.jpg';
-
-
 
 const FavoritesModal = ({ 
   show, 

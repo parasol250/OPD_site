@@ -1,10 +1,9 @@
-// Header.js
-import React from 'react';
+//import React from 'react';
 import './Header.css';
 import FilterSidebar from './FilterSidebar';
 import { Link } from 'react-router-dom';
 
-function Header({ onOpenPopup, onSearch, onFilterChange, onCategorySelect, isLoggedIn, userRole, onShowFavorites, onOpenAdminPanel }) {
+function Header({ onOpenPopup, onSearch, onFilterChange, onCategorySelect, isLoggedIn, userRole, onShowFavorites, onOpenAdminPanel, filters }) {
   const handleInputChange = (event) => {
     onSearch(event.target.value);
   };
@@ -52,6 +51,7 @@ function Header({ onOpenPopup, onSearch, onFilterChange, onCategorySelect, isLog
       </div>
       <FilterSidebar 
         onFilterChange={onFilterChange}
+        initialFilters={filters}
         onCategorySelect={onCategorySelect}
       />
     </header>

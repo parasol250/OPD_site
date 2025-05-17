@@ -1,3 +1,4 @@
+//import React from 'react';
 import { useState} from 'react';
 import './AdminPanel.css';
 import { registerUser, hashString } from './Login.js';
@@ -32,7 +33,6 @@ function AdminPanel({ onClose, currentUser }) {
   };
 
   const deleteUser = async (userId) => {
-    // Проверяем, не пытается ли администратор удалить самого себя
     if (currentUser && currentUser.role === 'admin' && currentUser.id === userId) {
       setError('Администратор не может удалить самого себя');
       return;
@@ -49,13 +49,11 @@ function AdminPanel({ onClose, currentUser }) {
           },
         mode: 'cors',
       });
-
       if (!response.ok) {
         throw new Error('Ошибка при удалении пользователя');
       }
-
       setSuccess('Пользователь успешно удален');
-      fetchUsers(); // Обновляем список после удаления
+      fetchUsers();
     } catch (err) {
       setError(err.message);
     }
@@ -113,7 +111,8 @@ function AdminPanel({ onClose, currentUser }) {
         });
         setTimeout(() => setShowAddUserForm(false), 2000);
         fetchUsers();
-      } else {
+      }
+      else {
         setError(result.message || 'Ошибка при добавлении пользователя');
       }
     } catch (err) {
