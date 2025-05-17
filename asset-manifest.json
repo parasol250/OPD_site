@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/OPD_site/static/css/main.18e2d3d4.css",
-    "main.js": "/OPD_site/static/js/main.59858b26.js",
+    "main.css": "/OPD_site/static/css/main.d67ee3ae.css",
+    "main.js": "/OPD_site/static/js/main.753b8221.js",
     "index.html": "/OPD_site/index.html",
-    "main.18e2d3d4.css.map": "/OPD_site/static/css/main.18e2d3d4.css.map",
-    "main.59858b26.js.map": "/OPD_site/static/js/main.59858b26.js.map"
+    "main.d67ee3ae.css.map": "/OPD_site/static/css/main.d67ee3ae.css.map",
+    "main.753b8221.js.map": "/OPD_site/static/js/main.753b8221.js.map"
   },
   "entrypoints": [
-    "static/css/main.18e2d3d4.css",
-    "static/js/main.59858b26.js"
+    "static/css/main.d67ee3ae.css",
+    "static/js/main.753b8221.js"
   ]
 }
