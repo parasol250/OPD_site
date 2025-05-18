@@ -25,19 +25,6 @@ async function connectToDatabase() {
     }
 }
 
-async function addFilterIfNotExists(name, displayName, value, productId) {
-    const res = await client.query(
-        'SELECT * FROM filters WHERE name=$1 AND value=$2 AND product_id=$3',
-        [name, value, productId]
-    );
-    if (res.rows.length === 0) {
-        await client.query(
-            'INSERT INTO filters (name, display_name, value, product_id) VALUES ($1, $2, $3, $4)',
-            [name, displayName, value, productId]
-        );
-    }
-}
-
 async function authenticateUser(username) {
     try {
         const result = await client.query(
@@ -117,19 +104,6 @@ const server = http.createServer(async (req, res) => {
             res.writeHead(204);
             res.end();
             return;
-          } else if (pathname === '/api/filters' && req.method === 'GET') {
-            const result = await client.query('SELECT DISTINCT ON (name) name, display_name FROM filters');
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify(result.rows));
-        } else if (pathname === '/api/filters/add' && req.method === 'POST') {
-            let body = '';
-            req.on('data', chunk => { body += chunk.toString(); });
-            req.on('end', async () => {
-                const { name, displayName, value, productId } = JSON.parse(body);
-                await addFilterIfNotExists(name, displayName, value, productId);
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ success: true }));
-            });
         }
         else if (pathname === '/api/auth' && req.method === 'POST') {
             let body = '';
@@ -169,7 +143,6 @@ const server = http.createServer(async (req, res) => {
                 }
             });
         }
-
         else if ((pathname === '/api/check-username' || pathname === '/api/checkusername') && req.method === 'GET') {
             console.log('Check username endpoint accessed');
             console.log(`Received request: ${req.method} ${pathname}`);
@@ -180,7 +153,6 @@ const server = http.createServer(async (req, res) => {
                 res.end(JSON.stringify({ error: 'Username parameter is required' }));
                 return;
             }
-
             try {
                 const result = await client.query(
                 'SELECT id FROM users WHERE username = $1', 
@@ -195,7 +167,6 @@ const server = http.createServer(async (req, res) => {
                 res.end(JSON.stringify({ error: 'Database error' }));
             }
         }
-
         else if (pathname === '/api/register' && req.method === 'POST') {
             let body = '';
             req.on('data', chunk => { body += chunk.toString(); });
@@ -242,7 +213,6 @@ const server = http.createServer(async (req, res) => {
                 }
             });
         }
-
         else if (pathname === '/api/login' && req.method === 'POST') {
             let body = '';
             req.on('data', chunk => { body += chunk.toString(); });
@@ -278,7 +248,6 @@ const server = http.createServer(async (req, res) => {
                 }
             });
         }
-
          else if (pathname === '/api/products' && req.method === 'GET') {
             try {
                 const result = await client.query(`
